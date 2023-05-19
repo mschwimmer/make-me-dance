@@ -5,10 +5,10 @@ BASE_URL = 'https://api.spotify.com/v1/'
 
 
 # https://developer.spotify.com/documentation/web-api/reference/#/operations/get-audio-features
-# gets 1 track's data
-def get_track_data(access_token, track_id):
+# Returns 1 track's data
+def get_track(access_token, track_id):
     headers = {
-        'Authorization': 'Bearer {token}'.format(token=access_token)
+        'Authorization': f'Bearer {access_token}'
     }
 
     try:
@@ -20,10 +20,10 @@ def get_track_data(access_token, track_id):
 
 
 # https://developer.spotify.com/documentation/web-api/reference/#/operations/get-several-audio-features
-# gets max 100 tracks' data
-def get_several_tracks_data(access_token, track_ids):
+# Returns max 100 tracks' data
+def get_several_tracks(access_token, track_ids):
     headers = {
-        'Authorization': 'Bearer {token}'.format(token=access_token)
+        'Authorization': f'Bearer {access_token}'
     }
     payload = {'ids': track_ids}
 
@@ -35,21 +35,20 @@ def get_several_tracks_data(access_token, track_ids):
         return e
 
 
-# uses get_several_tracks_data for more than 100 tracks
-# uses multithreading for speed
-# returns [[{audio_feature dictionary}]]
+# Uses get_several_tracks_data & multiprocessing for more than 100 tracks
+# Returns [[{audio_feature dictionary}]]
 def get_many_tracks_data(access_token, track_ids):
     total_tracks = len(track_ids)
-    input_batches = []
+    track_id_batches = []
     output_batches = []
 
     for i in range(0, total_tracks, 100):
-        input_batches.append(",".join(track_ids[i:i + 100]))
+        track_id_batches.append(",".join(track_ids[i:i + 100]))
 
     threads = []
     with ThreadPoolExecutor(max_workers=20) as executor:
-        for batch in input_batches:
-            threads.append(executor.submit(get_several_tracks_data, access_token, batch))
+        for track_id_batch in track_id_batches:
+            threads.append(executor.submit(get_several_tracks, access_token, track_id_batch))
         for task in as_completed(threads):
             tracks_json = task.result()
             output_batches.append(tracks_json['audio_features'])
@@ -120,7 +119,7 @@ def get_avg_danceability(token, tracks):
     threads = []
     with ThreadPoolExecutor(max_workers=20) as executor:
         for batch in input_batches:
-            threads.append(executor.submit(get_several_tracks_data, token, batch))
+            threads.append(executor.submit(get_several_tracks, token, batch))
         for task in as_completed(threads):
             tracks_json = task.result()
             output_batches.append(tracks_json)
@@ -208,3 +207,28 @@ def get_user_playlists(access_token, user_id):
         return r
     except requests.exceptions.RequestException as e:
         return e
+
+
+def get_top_artist(access_token):
+    # set up headers with authorization using access token
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+    }
+
+    # set up parameters for top artists endpoint
+    params = {
+        "time_range": "medium_term",
+        "limit": 1,
+    }
+
+    try:
+        # send request to top artists endpoint
+        # response = requests.get(BASE_URL + 'users/' + user_id + '/top/artists', headers=headers, params=params)
+        response = requests.get("https://api.spotify.com/v1/me/top/artists", headers=headers, params=params)
+        response = response.json()
+        print(response)
+        top_artist = response["items"][0]["name"]
+        return top_artist
+    except requests.exceptions.RequestException as e:
+        return e
+

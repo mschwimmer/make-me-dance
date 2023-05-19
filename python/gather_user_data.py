@@ -6,8 +6,6 @@ from itertools import chain
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 
-CLIENT_ID = config.CLIENT_ID
-CLIENT_SECRET = config.CLIENT_SECRET
 token = config.get_token()
 user_id = config.user_id
 
@@ -121,6 +119,7 @@ def main_runner():
     full_time = full_end - full_start
     print("full script took", int(full_time/60), "minutes", full_time % 60, "seconds")
     # pretty = json.dumps(playlist_to_track_dict, indent=4)
+
 
 if __name__ == '__main__':
     main_runner()
