@@ -1,5 +1,5 @@
 import config
-import spotify_functions as sf
+import game
 from flask import Flask, url_for, session, request, redirect
 from flask import render_template
 import spotipy
@@ -41,9 +41,10 @@ def get_tracks():
         return redirect('/')
 
     print(session)
-    print(sf.get_top_artist(session['token_info']['access_token']))
-    # The token_info key in session is our spotify API token
-    return "some songs or something"
+    access_token = session['token_info']['access_token']
+    game_data = game.guess_song_game(access_token)
+
+    return render_template("index.html", game_data=game_data)
 
 
 def get_token():
@@ -78,3 +79,5 @@ def create_spotify_oath():
     )
 
 
+if __name__ == '__main__':
+    app.run(debug=True)

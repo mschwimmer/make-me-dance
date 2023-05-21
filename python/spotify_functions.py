@@ -209,7 +209,7 @@ def get_user_playlists(access_token, user_id):
         return e
 
 
-def get_top_artist(access_token):
+def get_top_artist_json(access_token):
     # set up headers with authorization using access token
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -217,7 +217,7 @@ def get_top_artist(access_token):
 
     # set up parameters for top artists endpoint
     params = {
-        "time_range": "medium_term",
+        "time_range": "long_term",
         "limit": 1,
     }
 
@@ -226,9 +226,40 @@ def get_top_artist(access_token):
         # response = requests.get(BASE_URL + 'users/' + user_id + '/top/artists', headers=headers, params=params)
         response = requests.get("https://api.spotify.com/v1/me/top/artists", headers=headers, params=params)
         response = response.json()
-        print(response)
-        top_artist = response["items"][0]["name"]
-        return top_artist
+        # top_artist = response["items"][0]["name"]
+        return response
     except requests.exceptions.RequestException as e:
         return e
 
+
+def get_top_tracks_from_artist_json(access_token, artist_id):
+    # set up headers with authorization using access token
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+    }
+    params = {
+        "market": "US"
+    }
+    try:
+        response = requests.get(f"{BASE_URL}artists/{artist_id}/top-tracks", headers=headers, params=params)
+        response = response.json()
+        return response
+    except requests.exceptions.RequestException as e:
+        return e
+
+
+def get_albums_from_artist_json(access_token, artist_id):
+    # set up headers with authorization using access token
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+    }
+    params = {
+        'include_groups': 'album',
+        "market": "US"
+    }
+    try:
+        response = requests.get(f"{BASE_URL}artists/{artist_id}/albums", headers=headers, params=params)
+        response = response.json()
+        return response
+    except requests.exceptions.RequestException as e:
+        return e
