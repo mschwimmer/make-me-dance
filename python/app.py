@@ -2,7 +2,6 @@ import config
 import game
 from flask import Flask, url_for, session, request, redirect
 from flask import render_template
-import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import time
 
@@ -42,9 +41,19 @@ def get_tracks():
 
     print(session)
     access_token = session['token_info']['access_token']
-    game_data = game.guess_song_game(access_token)
+    session['user_data'] = game.get_user_data(access_token)
+    session['game_data'] = game.guess_song_game(access_token)
+    # TODO get user input from three buttons
+    return render_template("index.html", user_data=session['user_data'], game_data=session['game_data'])
 
-    return render_template("index.html", game_data=game_data)
+
+@app.route('/user-guess', methods=['POST'])
+def handle_guess():
+    user_guess = request.form['guess']
+    if user_guess == session['game_data']['correct_album']:
+        return f"{user_guess} IS CORRECT!"
+    else:
+        return f"{user_guess} IS INCORRECT, IT WAS ACTUALLY {session['game_data']['correct_album']}"
 
 
 def get_token():

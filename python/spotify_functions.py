@@ -195,6 +195,22 @@ def get_all_artist_tracks(access_token):
         return e
 
 
+# returns user profile
+def get_user(access_token):
+    # set up headers with authorization using access token
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    try:
+        # send request to user endpoint
+        response = requests.get("https://api.spotify.com/v1/me", headers=headers)
+        response = response.json()
+        # top_artist = response["items"][0]["name"]
+        return response
+    except requests.exceptions.RequestException as e:
+        return e
+
+
 # returns max 50 playlists from user, default is 20
 def get_user_playlists(access_token, user_id):
     headers = {
@@ -212,7 +228,7 @@ def get_user_playlists(access_token, user_id):
 def get_top_artist_json(access_token):
     # set up headers with authorization using access token
     headers = {
-        "Authorization": f"Bearer {access_token}",
+        "Authorization": f"Bearer {access_token}"
     }
 
     # set up parameters for top artists endpoint

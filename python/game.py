@@ -2,6 +2,16 @@ import config
 import spotify_functions as sf
 
 
+def get_user_data(access_token):
+    """
+    Get spotify user's data via spotify API
+    :param access_token:
+    :return: Spotify API User Data
+    """
+    user_data = sf.get_user(access_token)
+    return user_data
+
+
 def get_random_song(artist):
     # Returns a random song from the user's top artist
     ...
@@ -14,6 +24,7 @@ def get_album_choices(albums_json, correct_album):
     choices = [correct_album]
     wrong_choices = []
     # TODO assert albums_json has at least 3 albums
+    assert len(albums_json['items']) > 3
     for album_dict in albums_json['items']:
         if [album_dict['name']] != correct_album:
             wrong_choices += [album_dict['name']]

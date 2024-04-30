@@ -1,0 +1,41 @@
+/* MAIN CONTENT STYLES */
+body {
+    background-color: #121212; /* Spotify Green */
+    color: #B3B3B3; /* Light gray for text for contrast */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Full viewport height */
+}
+
+a, button {
+    background-color: #1DB954; /* Spotify Green */
+    color: white; /* Ensures text is readable */
+    border-color: #1DB954; /* Match border to background */
+}
+
+a:hover, button:hover {
+    background-color: #1aa34a; /* Slightly darker green for hover */
+    border-color: #1aa34a; /* Match border to background on hover */
+}
+
+.error {
+    color: #FF0000; /* Red for errors */
+}
+
+#welcome-message {
+    position: fixed;   /* Fixed positioning */
+    top: 0;            /* Align to the top of the viewport */
+    width: 100%;       /* Make it full width */
+    text-align: center; /* Center the text */
+    padding: 10px 0;   /* Add some padding */
+    z-index: 1000;     /* Make sure it's on top of other content */
+}
+
+#game-section {
+    margin: 50px;
+}
