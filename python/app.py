@@ -42,6 +42,7 @@ def get_tracks():
 
     print(session)
     access_token = session['token_info']['access_token']
+    # TODO create separate page for dance songs
     gather_user_data.gather_user_data(access_token)
     session['user_data'] = game.get_user_data(access_token)
     session['playlist_data'] = game.get_user_playlists(access_token)

@@ -1,13 +1,12 @@
 import time
 import pandas as pd
-import config
 import spotify_functions as sp
 from itertools import chain
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import json
 
 
 def gather_user_data(access_token):
+    print(f"Gathering all songs from user's playlists")
     full_start = time.time()
 
     # returns json of the users playlists via the spotify API
@@ -59,11 +58,11 @@ def gather_user_data(access_token):
     time_past = end - start
     print("Collecting all song units via get_playlist_items_from_playlist_id:", int(time_past / 60), "minutes", time_past % 60, "seconds")
 
-    gold_df = pd.DataFrame(song_units, columns=['track_name', 'track_id', 'plist_name'])
-    all_track_ids = gold_df['track_id'].to_list()
+    song_df = pd.DataFrame(song_units, columns=['track_name', 'track_id', 'plist_name'])
+    all_track_ids = song_df['track_id'].to_list()
 
     unique_ids = list(set(all_track_ids))
-    #unique_ids = [item for item in all_track_ids if all_track_ids.count(item) == 1]
+    # unique_ids = [item for item in all_track_ids if all_track_ids.count(item) == 1]
     start = time.time()
     unique_track_data = sp.get_many_tracks_data(access_token, unique_ids)
     end = time.time()
@@ -74,23 +73,26 @@ def gather_user_data(access_token):
     flat_df = pd.DataFrame(flat_track_data)
     print("flat_df\n", flat_df)
     flat_df.rename(columns={'id': 'track_id'}, inplace=True)
-    #flat_df.set_index('track_id', drop=False, inplace=True)
-    gold_df = gold_df.join(flat_df.set_index('track_id'), on='track_id')
+    # Set indexes to track_id for joining data to song_df
+    flat_df.set_index('track_id', drop=True, inplace=True)
+    song_df.set_index('track_id', drop=True, inplace=True)
+    song_df = song_df.join(flat_df)
+    song_df = song_df[~song_df.index.duplicated()]
+    song_df.reset_index(inplace=True)
 
-    #USE df.groupby(PLAYLIST NAME).median HAHA HO SHIt WE GOT THIS FROM WORK
-    gold_copy = gold_df.groupby('plist_name').mean()
-    print("test_copy \n", gold_copy)
-
-    new_plist_to_avg_dance = dict(zip(gold_copy.index.values.tolist(), gold_copy['danceability'].to_list()))
-    for i in plist_names:
-        print(i, "groupyby().mean() method we got", new_plist_to_avg_dance[i])
-        print("-------")
+    top_100_dance_songs = song_df.sort_values('danceability', ascending=False).iloc[0:100]
 
     full_end = time.time()
     full_time = full_end - full_start
-    print("full script took", int(full_time/60), "minutes", full_time % 60, "seconds")
+    print("Gathering user's songs took", int(full_time/60), "minutes", full_time % 60, "seconds")
     # pretty = json.dumps(playlist_to_track_dict, indent=4)
+    return song_df
 
-
-if __name__ == '__main__':
-    main_runner()
+    # USE df.groupby(PLAYLIST NAME).median
+    # gold_copy = gold_df.groupby('plist_name').mean()
+    # print("test_copy \n", gold_copy)
+    #
+    # new_plist_to_avg_dance = dict(zip(gold_copy.index.values.tolist(), gold_copy['danceability'].to_list()))
+    # for i in plist_names:
+    #     print(i, "groupyby().mean() method we got", new_plist_to_avg_dance[i])
+    #     print("-------")
