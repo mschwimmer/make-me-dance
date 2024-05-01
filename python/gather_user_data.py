@@ -6,41 +6,12 @@ from itertools import chain
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 
-token = config.get_token()
-user_id = config.user_id
 
-
-# this function takes in a spotify playlist href
-# this is an old obsolete function that I should prob delete
-def get_song_units(playlist_href):
-    plist_json = sp.get_data_from_href(token, playlist_href)
-    song_units = []
-    # for a playlist >50 songs, href_json['tracks']['next'] represents following tracks within playlist
-    next_track_link = plist_json['tracks']['next']
-    plist_name = plist_json['name']
-    for item in plist_json['tracks']['items']:
-        name = item['track']['name']
-        if item['track']['id'] is not None:
-            song_id = item['track']['id']
-            song_units.append([name, song_id, plist_name])
-
-    while next_track_link is not None:
-        next_json = sp.get_data_from_href(token, next_track_link)
-        next_track_link = next_json['next']
-        for item in next_json['items']:
-            if item['track']['id'] is not None:
-                name = item['track']['name']
-                song_id = item['track']['name']
-                song_units.append([name, song_id, plist_name])
-
-    return song_units
-
-def main_runner():
+def gather_user_data(access_token):
     full_start = time.time()
 
     # returns json of the users playlists via the spotify API
-    # TODO remember this only returns 20, eventually need to return all playlists
-    user_playlists = sp.get_user_playlists(token, user_id)
+    user_playlists = sp.get_current_user_playlists(access_token)
 
     # list of all playlist hrefs ['user plist1 href', 'user plist2 href'...]
     playlist_hrefs = []
@@ -74,7 +45,7 @@ def main_runner():
         for plist_name, plist_id, total in zip(plist_names, plist_ids, track_totals):
             offset = 0
             while offset < total:
-                threads.append(executor.submit(sp.get_playlist_items_from_playlist_id, token, plist_id, offset, plist_name))
+                threads.append(executor.submit(sp.get_playlist_items_from_playlist_id, access_token, plist_id, offset, plist_name))
                 offset += 50
         for task in as_completed(threads):
             result = task.result()
@@ -94,7 +65,7 @@ def main_runner():
     unique_ids = list(set(all_track_ids))
     #unique_ids = [item for item in all_track_ids if all_track_ids.count(item) == 1]
     start = time.time()
-    unique_track_data = sp.get_many_tracks_data(token, unique_ids)
+    unique_track_data = sp.get_many_tracks_data(access_token, unique_ids)
     end = time.time()
     time_past = end - start
     print("Collecting all unique songs' track data via get_many_tracks_data took:", int(time_past/60), "minutes", time_past % 60, "seconds")

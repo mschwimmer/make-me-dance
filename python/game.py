@@ -6,10 +6,21 @@ def get_user_data(access_token):
     """
     Get spotify user's data via spotify API
     :param access_token:
-    :return: Spotify API User Data
+    :return: Spotify API User Data JSON
     """
     user_data = sf.get_user(access_token)
     return user_data
+
+
+def get_user_playlists(access_token):
+    """
+    Get spotify user's playlist data via spotify API
+    :param access_token:
+    :return: User's playlist JSON
+    """
+    playlist_data = sf.get_current_user_playlists(access_token)
+    print(f"Found {len(playlist_data['items'])} playlists for user")
+    return playlist_data
 
 
 def get_random_song(artist):

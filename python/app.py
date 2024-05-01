@@ -1,5 +1,6 @@
 import config
 import game
+import gather_user_data
 from flask import Flask, url_for, session, request, redirect
 from flask import render_template
 from spotipy.oauth2 import SpotifyOAuth
@@ -41,7 +42,9 @@ def get_tracks():
 
     print(session)
     access_token = session['token_info']['access_token']
+    gather_user_data.gather_user_data(access_token)
     session['user_data'] = game.get_user_data(access_token)
+    session['playlist_data'] = game.get_user_playlists(access_token)
     session['game_data'] = game.guess_song_game(access_token)
     # TODO get user input from three buttons
     return render_template("index.html", user_data=session['user_data'], game_data=session['game_data'])
