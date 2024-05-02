@@ -1,6 +1,5 @@
 import config
-import game
-import gather_user_data
+import user_functions
 from flask import Flask, url_for, session, request, redirect
 from flask import render_template
 from spotipy.oauth2 import SpotifyOAuth
@@ -29,26 +28,30 @@ def authorize():
     # Using auth code to get access token
     token_info = sp_oath.get_access_token(code)
     session["token_info"] = token_info
-    return redirect(url_for('get_tracks', _external=True))
+    return redirect(url_for('welcome', _external=True))
 
 
-@app.route('/getTracks')
-def get_tracks():
+@app.route('/welcome')
+def welcome():
     session['token_info'], authorized = get_token()
     session.modified = True
-    session["test_key"] = "test value"
     if not authorized:
         return redirect('/')
 
-    print(session)
     access_token = session['token_info']['access_token']
-    # TODO create separate page for dance songs
-    gather_user_data.gather_user_data(access_token)
-    session['user_data'] = game.get_user_data(access_token)
-    session['playlist_data'] = game.get_user_playlists(access_token)
-    session['game_data'] = game.guess_song_game(access_token)
+    session['user_data'] = user_functions.get_user_data(access_token)
+
+    return render_template("welcome.html", user_data=session['user_data'])
+
+
+@app.route('/artist-game')
+def enter_game():
+    access_token = session['token_info']['access_token']
+    session['user_data'] = user_functions.get_user_data(access_token)
+    session['playlist_data'] = user_functions.get_user_playlists(access_token)
+    session['game_data'] = user_functions.guess_song_game(access_token)
     # TODO get user input from three buttons
-    return render_template("index.html", user_data=session['user_data'], game_data=session['game_data'])
+    return render_template("artist-game.html", user_data=session['user_data'], game_data=session['game_data'])
 
 
 @app.route('/user-guess', methods=['POST'])
@@ -58,6 +61,15 @@ def handle_guess():
         return f"{user_guess} IS CORRECT!"
     else:
         return f"{user_guess} IS INCORRECT, IT WAS ACTUALLY {session['game_data']['correct_album']}"
+
+
+@app.route('/user-dance-songs')
+def display_user_dance_songs():
+    access_token = session['token_info']['access_token']
+    song_df = user_functions.get_user_songs(access_token)
+    dance_songs = user_functions.get_top_dance_songs(song_df, 30)
+
+    return render_template("dance-songs.html")
 
 
 def get_token():
