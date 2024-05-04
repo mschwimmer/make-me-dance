@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+<div class="top-left">
+    <a href="{{ url_for('welcome') }}" class="home-button">Home</a>
+</div>
+
 <div id="welcome-message">
     {% if session.get('user_data') %}
     <h1>Hello {{ session['user_data']['display_name'] }}!</h1>

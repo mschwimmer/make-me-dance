@@ -11,6 +11,7 @@ import os
 app = Flask(__name__)
 app.secret_key = config.flask_secret_key
 app.config['SESSION_COOKIE_NAME'] = config.flask_session_name
+# app.config.update(SESSION_COOKIE_SAMESITE="None", SESSION_COOKIE_SECURE=True)
 data_folder = os.path.join(app.root_path, 'data')
 
 

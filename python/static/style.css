@@ -1,6 +1,6 @@
 /* MAIN CONTENT STYLES */
 body {
-    background-color: #121212; /* Spotify Green */
+    background-color: #121212; /* Dark Grey */
     color: #B3B3B3; /* Light gray for text for contrast */
     font-family: Arial, sans-serif;
     margin: 0;
@@ -10,6 +10,25 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh; /* Full viewport height */
+}
+
+.top-left {
+    position: fixed;
+    top: 10px; /* Space from the top */
+    left: 10px; /* Space from the right */
+}
+
+.home-button {
+    padding: 8px 15px; /* Padding inside the button */
+    text-decoration: none; /* Remove underline from link */
+    border-radius: 0px; /* Rounded corners */
+    border: none; /* No border */
+    font-size: 16px; /* Font size */
+}
+
+.home-button:hover {
+    background-color: #B3B3B3;
+    color: #121212;
 }
 
 a {

@@ -2,7 +2,7 @@
 
 {% block body %}
 
-{% if session.get('playlist_success') %}
+{% if session.get('created_playlist') %}
 
     <h1>Successfully created your dance playlist ;) ;) ;)</h1>
 
@@ -11,9 +11,10 @@
             <h1><a href="{{session['new_playlist_link']}}">Click here to go to your new dance playlist!</a></h1>
         {% endif %}
 
-{% elif session.get('playlist_failure') %}
+{% else %}
 
     <h1>Sorry, looks like you already have a playlist with the name you gave us.</h1>
+    <p>(or something else went wrong)</p>
     <p>We like being original, try using a new playlist name next time!</p>
 
 {% endif %}
