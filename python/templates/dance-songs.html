@@ -2,6 +2,45 @@
 
 {% block body %}
 
-    <h1>You chose dance songs, ayooo</h1>
+<h1>You chose dance songs, ayooo</h1>
+<p>We scanned all of your playlists and decided these were the top 30 danceable songs</p>
+<h1><a href="{{url_for('create_dance_playlist')}}">Click here to turn this into a Spotify Playlist!</a></h1>
+
+<form action="/create-dance-playlist" method="post">
+    <label for="playlist_name">Playlist Name:</label>
+    <input type="text" id="playlist_name" name="playlist_name" required>
+    <button type="submit">Create Playlist</button>
+</form>
+
+    {% if session.get('dance_songs') %}
+<div class="container">
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Song</th>
+            <th scope="col">Album</th>
+            <th scope="col">Artist</th>
+            <th scope="col">Playlist</th>
+            <th scope="col">Dance Score</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for song in session['dance_songs'] %}
+        <tr>
+            <th scope="row">{{ loop.index }}</th>
+            <td>{{ song.track_name }}</td>
+            <td>{{ song.album }}</td>
+            <td>{{ song.artist }}</td>
+            <td>{{ song.plist_name }}</td>
+            <td>{{ song.danceability }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+    {% else %}
+<h1> Couldn't retrieve your songs :(</h1>
+    {% endif %}
 
 {% endblock %}

@@ -40,9 +40,11 @@ def get_album_choices(albums_json, correct_album):
     choices += wrong_choices[0:2]
     return choices
 
+
 def get_user_top_artist(access_token):
     top_artist_json = sf.get_top_artist_json(access_token)
     return top_artist_json['items'][0]['name']
+
 
 # Game
 # Step 1, get the top artist of the user
@@ -119,12 +121,16 @@ def get_user_songs(access_token):
     for result in results:
         for item in result['items']:
             if item['track']['id'] is not None:
-                song_units.append([item['track']['name'], item['track']['id'], result['name']])
+                song_units.append([item['track']['name'],
+                                   item['track']['id'],
+                                   item['track']['album']['name'],
+                                   item['track']['artists'][0]['name'],
+                                   result['name']])
     end = time.time()
     time_past = end - start
     print("Collecting all song units via get_playlist_items_from_playlist_id:", int(time_past / 60), "minutes", time_past % 60, "seconds")
 
-    song_df = pd.DataFrame(song_units, columns=['track_name', 'track_id', 'plist_name'])
+    song_df = pd.DataFrame(song_units, columns=['track_name', 'track_id', 'album', 'artist', 'plist_name'])
     all_track_ids = song_df['track_id'].to_list()
 
     unique_ids = list(set(all_track_ids))
@@ -155,3 +161,14 @@ def get_user_songs(access_token):
 
 def get_top_dance_songs(song_df, num_songs):
     return song_df.sort_values('danceability', ascending=False).iloc[0:num_songs]
+
+
+def create_playlist(access_token, user_id, playlist_name):
+    # TODO check for duplicate playlists
+    playlist_response = sf.create_playlist_for_user(access_token, user_id, playlist_name)
+    return playlist_response
+
+
+def add_tracks_to_playlist(access_token, playlist_id, track_uris):
+    add_tracks_response = sf.add_tracks_to_playlist(access_token, playlist_id, track_uris)
+    return add_tracks_response

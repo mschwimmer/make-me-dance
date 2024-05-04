@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+{% if session.get('playlist_success') %}
+<h1>Successfully created your dance playlist ;) ;) ;)</h1>
+{% elif session.get('playlist_failure') %}
+<h1>Sorry, looks like you already have a playlist with the name you gave us.</h1>
+<p>We like being original, try using a new playlist name next time!</p>
+{% endif %}
+
+{% endblock %}

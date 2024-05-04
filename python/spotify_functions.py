@@ -299,3 +299,45 @@ def get_albums_from_artist_json(access_token, artist_id):
         return response
     except requests.exceptions.RequestException as e:
         return e
+
+
+# https://developer.spotify.com/documentation/web-api/reference/create-playlist
+def create_playlist_for_user(access_token, user_id, playlist_name):
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    # set up parameters for playlist name
+    data = {
+        "name": playlist_name,
+        "description": "My top dance songs ;)",
+        "public": False
+    }
+
+    try:
+        # send request to user endpoint
+        response = requests.post(f"https://api.spotify.com/v1/users/{user_id}/playlists", headers=headers, json=data)
+        response = response.json()
+        return response
+    except requests.exceptions.RequestException as e:
+        return e
+
+
+# https://developer.spotify.com/documentation/web-api/reference/add-tracks-to-playlist
+def add_tracks_to_playlist(access_token, playlist_id, track_uris):
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    # set up parameters for playlist name
+    data = {
+        "uris": track_uris
+    }
+
+    try:
+        # send request to user endpoint
+        response = requests.post(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers, json=data)
+        response = response.json()
+        return response
+    except requests.exceptions.RequestException as e:
+        return e
+
+

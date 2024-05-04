@@ -12,15 +12,9 @@ body {
     min-height: 100vh; /* Full viewport height */
 }
 
-a, button {
-    background-color: #1DB954; /* Spotify Green */
-    color: white; /* Ensures text is readable */
-    border-color: #1DB954; /* Match border to background */
-}
-
-a:hover, button:hover {
-    background-color: #1aa34a; /* Slightly darker green for hover */
-    border-color: #1aa34a; /* Match border to background on hover */
+a {
+    text-decoration: none; /* Removes underline */
+    color: inherit; /* Inherits the color from the parent element */
 }
 
 .error {
@@ -28,14 +22,16 @@ a:hover, button:hover {
 }
 
 #welcome-message {
-    position: fixed;   /* Fixed positioning */
     top: 0;            /* Align to the top of the viewport */
     width: 100%;       /* Make it full width */
     text-align: center; /* Center the text */
     padding: 10px 0;   /* Add some padding */
-    z-index: 1000;     /* Make sure it's on top of other content */
 }
 
 #game-section {
     margin: 50px;
+}
+
+.container {
+    width: 75%;
 }

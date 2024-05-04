@@ -13,6 +13,8 @@ app.config['SESSION_COOKIE_NAME'] = config.flask_session_name
 
 @app.route('/')
 def login():
+    session.clear()
+    print("Logging in")
     sp_oath = create_spotify_oath()
     auth_url = sp_oath.get_authorize_url()
     print(auth_url)
@@ -64,12 +66,44 @@ def handle_guess():
 
 
 @app.route('/user-dance-songs')
-def display_user_dance_songs():
+def user_dance_songs():
     access_token = session['token_info']['access_token']
-    song_df = user_functions.get_user_songs(access_token)
-    dance_songs = user_functions.get_top_dance_songs(song_df, 30)
+    if 'dance_songs' not in session:
+        # User's dance songs are not yet in session, must retrieve
+        song_df = user_functions.get_user_songs(access_token)
+        dance_df = user_functions.get_top_dance_songs(song_df, 30)
+        session['dance_songs'] = dance_df[['track_name', 'album', 'artist', 'plist_name', 'danceability', 'uri']].to_dict(
+            orient='records')
 
     return render_template("dance-songs.html")
+
+
+@app.route('/create-dance-playlist', methods=['POST'])
+def create_dance_playlist():
+    access_token = session['token_info']['access_token']
+    if 'dance_songs' not in session:
+        # User's dance songs are not yet in session, must retrieve
+        song_df = user_functions.get_user_songs(access_token)
+        dance_df = user_functions.get_top_dance_songs(song_df, 30)
+        session['dance_songs'] = dance_df[['track_name', 'album', 'artist', 'plist_name', 'danceability', 'uri']].to_dict(
+            orient='records')
+
+    playlist_name = request.form['playlist_name']
+    # Check if user already has playlist with same name
+    if 'playlist_data' not in session:
+        session['playlist_data'] = user_functions.get_user_playlists(access_token)
+    if playlist_name not in [item['name'] for item in session['playlist_data']['items']]:
+        # Collect list of top 30 dance track URIs
+        track_uris = [song['uri'] for song in session['dance_songs']]
+        # Create new playlist for user
+        playlist_response = user_functions.create_playlist(access_token, session['user_data']['id'], "My Dance Playlist")
+        # Add 30 dance tracks to new playlist
+        add_tracks_response = user_functions.add_tracks_to_playlist(access_token, playlist_response['id'], track_uris)
+        session['playlist_success'] = True
+    else:
+        session['playlist_failure'] = True
+
+    return render_template("playlist-result.html")
 
 
 def get_token():
@@ -100,7 +134,7 @@ def create_spotify_oath():
         client_id=config.client_id,
         client_secret=config.client_secret,
         redirect_uri=url_for('authorize', _external=True),
-        scope="user-top-read"
+        scope="user-top-read playlist-modify-public playlist-modify-private"
     )
 
 
