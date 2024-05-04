@@ -98,7 +98,7 @@ def get_user_songs(access_token):
         playlist_hrefs.append(item['href'])
     end = time.time()
     time_past = end - start
-    print("Collecting playlist ID, Name, and Href took:", int(time_past/60), "minutes", time_past % 60, "seconds")
+    print("Collecting playlist ID, Name, and Href took:", int(time_past / 60), "minutes", time_past % 60, "seconds")
 
     # a song_unit is a list containing
     # ["track name", "track id", "playlist"]
@@ -112,7 +112,8 @@ def get_user_songs(access_token):
         for plist_name, plist_id, total in zip(plist_names, plist_ids, track_totals):
             offset = 0
             while offset < total:
-                threads.append(executor.submit(sf.get_playlist_items_from_playlist_id, access_token, plist_id, offset, plist_name))
+                threads.append(
+                    executor.submit(sf.get_playlist_items_from_playlist_id, access_token, plist_id, offset, plist_name))
                 offset += 50
         for task in as_completed(threads):
             result = task.result()
@@ -128,7 +129,8 @@ def get_user_songs(access_token):
                                    result['name']])
     end = time.time()
     time_past = end - start
-    print("Collecting all song units via get_playlist_items_from_playlist_id:", int(time_past / 60), "minutes", time_past % 60, "seconds")
+    print("Collecting all song units via get_playlist_items_from_playlist_id:", int(time_past / 60), "minutes",
+          time_past % 60, "seconds")
 
     song_df = pd.DataFrame(song_units, columns=['track_name', 'track_id', 'album', 'artist', 'plist_name'])
     all_track_ids = song_df['track_id'].to_list()
@@ -139,7 +141,8 @@ def get_user_songs(access_token):
     unique_track_data = sf.get_many_tracks_data(access_token, unique_ids)
     end = time.time()
     time_past = end - start
-    print("Collecting all unique songs' track data via get_many_tracks_data took:", int(time_past/60), "minutes", time_past % 60, "seconds")
+    print("Collecting all unique songs' track data via get_many_tracks_data took:", int(time_past / 60), "minutes",
+          time_past % 60, "seconds")
 
     flat_track_data = list(chain.from_iterable(unique_track_data))
     flat_df = pd.DataFrame(flat_track_data)
@@ -154,17 +157,12 @@ def get_user_songs(access_token):
 
     full_end = time.time()
     full_time = full_end - full_start
-    print("Gathering user's songs took", int(full_time/60), "minutes", full_time % 60, "seconds")
+    print("Gathering user's songs took", int(full_time / 60), "minutes", full_time % 60, "seconds")
     # pretty = json.dumps(playlist_to_track_dict, indent=4)
     return song_df
 
 
-def get_top_dance_songs(song_df, num_songs):
-    return song_df.sort_values('danceability', ascending=False).iloc[0:num_songs]
-
-
 def create_playlist(access_token, user_id, playlist_name):
-    # TODO check for duplicate playlists
     playlist_response = sf.create_playlist_for_user(access_token, user_id, playlist_name)
     return playlist_response
 

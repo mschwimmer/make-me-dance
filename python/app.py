@@ -1,14 +1,17 @@
+import pandas as pd
+
 import config
 import user_functions
 from flask import Flask, url_for, session, request, redirect
 from flask import render_template
 from spotipy.oauth2 import SpotifyOAuth
 import time
-
+import os
 
 app = Flask(__name__)
 app.secret_key = config.flask_secret_key
 app.config['SESSION_COOKIE_NAME'] = config.flask_session_name
+data_folder = os.path.join(app.root_path, 'data')
 
 
 @app.route('/')
@@ -29,7 +32,14 @@ def authorize():
     code = request.args.get('code')
     # Using auth code to get access token
     token_info = sp_oath.get_access_token(code)
-    session["token_info"] = token_info
+    # Apparently future versions of library will return the straight up string, not a dict
+    # So, handle either way
+    if isinstance(token_info, str):
+        session["token_info"]['access_token'] = token_info
+    elif isinstance(token_info, dict):
+        session["token_info"] = token_info
+    else:
+        raise TypeError("Unexpected type for token_info")
     return redirect(url_for('welcome', _external=True))
 
 
@@ -68,41 +78,76 @@ def handle_guess():
 @app.route('/user-dance-songs')
 def user_dance_songs():
     access_token = session['token_info']['access_token']
-    if 'dance_songs' not in session:
-        # User's dance songs are not yet in session, must retrieve
+    if 'user_data' not in session:
+        session['user_data'] = user_functions.get_user_data(access_token)
+    user_name = session['user_data']['display_name'].lower().replace(' ', '_')
+    file_path = os.path.join(data_folder, f"{user_name}_song_data.csv")
+    # Check if user's dance song file already exists
+    if os.path.exists(file_path):
+        # User's dance song data file already exists, load from file and send to page
+        song_df = pd.read_csv(file_path)
+    else:
+        # User's dance songs must be gathered and stored as file
         song_df = user_functions.get_user_songs(access_token)
-        dance_df = user_functions.get_top_dance_songs(song_df, 30)
-        session['dance_songs'] = dance_df[['track_name', 'album', 'artist', 'plist_name', 'danceability', 'uri']].to_dict(
-            orient='records')
+        song_df.to_csv(file_path, index=False)
 
-    return render_template("dance-songs.html")
+    dance_df = song_df.sort_values('danceability', ascending=False).iloc[0:30]
+    dance_song_dict = dance_df[
+        ['track_name', 'album', 'artist', 'plist_name', 'danceability', 'uri']].to_dict(
+        orient='records')
+
+    return render_template("dance-songs.html", dance_song_data=dance_song_dict)
 
 
 @app.route('/create-dance-playlist', methods=['POST'])
 def create_dance_playlist():
     access_token = session['token_info']['access_token']
-    if 'dance_songs' not in session:
-        # User's dance songs are not yet in session, must retrieve
+    if 'user_data' not in session:
+        session['user_data'] = user_functions.get_user_data(access_token)
+    user_name = session['user_data']['display_name'].lower().replace(' ', '_')
+    file_path = os.path.join(data_folder, f"{user_name}_song_data.csv")
+
+    # Get user's dance songs
+    if os.path.exists(file_path):
+        # User's dance song data file already exists, load from file and send to page
+        song_df = pd.read_csv(file_path)
+    else:
+        # User's dance songs must be gathered and stored as file
         song_df = user_functions.get_user_songs(access_token)
-        dance_df = user_functions.get_top_dance_songs(song_df, 30)
-        session['dance_songs'] = dance_df[['track_name', 'album', 'artist', 'plist_name', 'danceability', 'uri']].to_dict(
-            orient='records')
+        song_df.to_csv(file_path, index=False)
+
+    dance_df = song_df.sort_values('danceability', ascending=False).iloc[0:30]
 
     playlist_name = request.form['playlist_name']
+    # If you're ever modifying the session, need to set this
+    session.modified = True
+    session['created_playlist'] = False
+
     # Check if user already has playlist with same name
-    if 'playlist_data' not in session:
-        session['playlist_data'] = user_functions.get_user_playlists(access_token)
-    if playlist_name not in [item['name'] for item in session['playlist_data']['items']]:
+    playlist_data = user_functions.get_user_playlists(access_token)
+
+    if playlist_name not in [item['name'] for item in playlist_data['items']]:
         # Collect list of top 30 dance track URIs
-        track_uris = [song['uri'] for song in session['dance_songs']]
+        track_uris = dance_df['uri'].to_list()
         # Create new playlist for user
-        playlist_response = user_functions.create_playlist(access_token, session['user_data']['id'], "My Dance Playlist")
+        playlist_response = user_functions.create_playlist(access_token, session['user_data']['id'], playlist_name)
         # Add 30 dance tracks to new playlist
         add_tracks_response = user_functions.add_tracks_to_playlist(access_token, playlist_response['id'], track_uris)
-        session['playlist_success'] = True
+        session['new_playlist_link'] = playlist_response['external_urls']['spotify']
+        session['created_playlist'] = True
+        print(f"Created new playlist {playlist_response['external_urls']['spotify']}")
     else:
-        session['playlist_failure'] = True
+        print(f"Did not create new playlist")
 
+    print("Redirecting to result page")
+    print(f"Session keys BEFORE redirect: {session.keys()}")
+    return redirect(url_for('playlist_result'))
+
+
+@app.route('/playlist-result')
+def playlist_result():
+    # created_playlist = session.get('created_playlist', False)
+    print(f"Session keys AFTER redirect: {session.keys()}")
     return render_template("playlist-result.html")
 
 

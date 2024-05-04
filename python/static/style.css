@@ -22,7 +22,8 @@ a {
 }
 
 #welcome-message {
-    top: 0;            /* Align to the top of the viewport */
+    margin-top: 0;     /* Align to the top of the viewport */
+    padding-top: 0;
     width: 100%;       /* Make it full width */
     text-align: center; /* Center the text */
     padding: 10px 0;   /* Add some padding */
@@ -34,4 +35,9 @@ a {
 
 .container {
     width: 75%;
+}
+
+.playlist-form {
+    margin: 5%;
+    padding: 5%;
 }

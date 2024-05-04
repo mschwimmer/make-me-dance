@@ -334,10 +334,9 @@ def add_tracks_to_playlist(access_token, playlist_id, track_uris):
 
     try:
         # send request to user endpoint
-        response = requests.post(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers, json=data)
+        response = requests.post(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers,
+                                 json=data)
         response = response.json()
         return response
     except requests.exceptions.RequestException as e:
         return e
-
-

@@ -3,10 +3,19 @@
 {% block body %}
 
 {% if session.get('playlist_success') %}
-<h1>Successfully created your dance playlist ;) ;) ;)</h1>
+
+    <h1>Successfully created your dance playlist ;) ;) ;)</h1>
+
+        {% if session.get('new_playlist_link') %}
+
+            <h1><a href="{{session['new_playlist_link']}}">Click here to go to your new dance playlist!</a></h1>
+        {% endif %}
+
 {% elif session.get('playlist_failure') %}
-<h1>Sorry, looks like you already have a playlist with the name you gave us.</h1>
-<p>We like being original, try using a new playlist name next time!</p>
+
+    <h1>Sorry, looks like you already have a playlist with the name you gave us.</h1>
+    <p>We like being original, try using a new playlist name next time!</p>
+
 {% endif %}
 
 {% endblock %}
