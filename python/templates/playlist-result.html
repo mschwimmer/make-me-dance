@@ -8,7 +8,7 @@
 
         {% if session.get('new_playlist_link') %}
 
-            <h1><a href="{{session['new_playlist_link']}}">Click here to go to your new dance playlist!</a></h1>
+            <h1><a href="{{session['new_playlist_link']}}" target="_blank" rel="noopener noreferrer">Click here to go to your new dance playlist!</a></h1>
         {% endif %}
 
 {% else %}
