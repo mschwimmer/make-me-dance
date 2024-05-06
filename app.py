@@ -1,5 +1,4 @@
 import pandas as pd
-from dotenv import load_dotenv
 from config import Config
 import user_functions
 from flask import Flask, url_for, session, request, redirect
@@ -7,9 +6,6 @@ from flask import render_template
 from spotipy.oauth2 import SpotifyOAuth
 import time
 import os
-
-# Load environment variables from .env if exists
-load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = Config.FLASK_SECRET_KEY
