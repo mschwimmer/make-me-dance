@@ -1,6 +1,6 @@
 import pandas as pd
-
-import config
+from dotenv import load_dotenv
+from config import Config
 import user_functions
 from flask import Flask, url_for, session, request, redirect
 from flask import render_template
@@ -8,9 +8,12 @@ from spotipy.oauth2 import SpotifyOAuth
 import time
 import os
 
+# Load environment variables from .env if exists
+load_dotenv()
+
 app = Flask(__name__)
-app.secret_key = config.flask_secret_key
-app.config['SESSION_COOKIE_NAME'] = config.flask_session_name
+app.secret_key = Config.FLASK_SECRET_KEY
+app.config['SESSION_COOKIE_NAME'] = Config.FLASK_SESSION_NAME
 # app.config.update(SESSION_COOKIE_SAMESITE="None", SESSION_COOKIE_SECURE=True)
 data_folder = os.path.join(app.root_path, 'data')
 
@@ -177,8 +180,8 @@ def get_token():
 
 def create_spotify_oath():
     return SpotifyOAuth(
-        client_id=config.client_id,
-        client_secret=config.client_secret,
+        client_id=Config.SPOTIFY_CLIENT_ID,
+        client_secret=Config.SPOTIFY_CLIENT_SECRET,
         redirect_uri=url_for('authorize', _external=True),
         scope="user-top-read playlist-modify-public playlist-modify-private"
     )
