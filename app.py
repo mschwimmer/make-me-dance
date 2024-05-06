@@ -14,6 +14,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = Config.FLASK_SECRET_KEY
 app.config['SESSION_COOKIE_NAME'] = Config.FLASK_SESSION_NAME
+app.config['DEBUG'] = Config.FLASK_DEBUG
 # app.config.update(SESSION_COOKIE_SAMESITE="None", SESSION_COOKIE_SECURE=True)
 data_folder = os.path.join(app.root_path, 'data')
 
@@ -188,4 +189,4 @@ def create_spotify_oath():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
