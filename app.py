@@ -1,5 +1,5 @@
 import pandas as pd
-from config import Config
+from config import get_config
 import user_functions
 from flask import Flask, url_for, session, request, redirect
 from flask import render_template
@@ -8,10 +8,11 @@ import time
 import os
 
 app = Flask(__name__)
-app.secret_key = Config.FLASK_SECRET_KEY
-app.config['SESSION_COOKIE_NAME'] = Config.FLASK_SESSION_NAME
-app.config['DEBUG'] = Config.FLASK_DEBUG
-# app.config.update(SESSION_COOKIE_SAMESITE="None", SESSION_COOKIE_SECURE=True)
+app.config.from_object(get_config())
+# app.secret_key = Config.FLASK_SECRET_KEY
+# app.config['SESSION_COOKIE_NAME'] = Config.FLASK_SESSION_NAME
+# app.config['DEBUG'] = Config.FLASK_DEBUG
+# # app.config.update(SESSION_COOKIE_SAMESITE="None", SESSION_COOKIE_SECURE=True)
 data_folder = os.path.join(app.root_path, 'data')
 
 
@@ -21,7 +22,7 @@ def login():
     print("Logging in")
     sp_oath = create_spotify_oath()
     auth_url = sp_oath.get_authorize_url()
-    print(auth_url)
+    print(f"auth_url: {auth_url}")
     return redirect(auth_url)
 
 
@@ -176,9 +177,12 @@ def get_token():
 
 
 def create_spotify_oath():
+    spotify_redirect_uri = app.config['SPOTIFY_REDIRECT_URI']
+    print(f"Redirect URI: {spotify_redirect_uri}")
+
     return SpotifyOAuth(
-        client_id=Config.SPOTIFY_CLIENT_ID,
-        client_secret=Config.SPOTIFY_CLIENT_SECRET,
+        client_id=app.config['SPOTIFY_CLIENT_ID'],
+        client_secret=app.config['SPOTIFY_CLIENT_SECRET'],
         redirect_uri=url_for('authorize', _external=True),
         scope="user-top-read playlist-modify-public playlist-modify-private"
     )
