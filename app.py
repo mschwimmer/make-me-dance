@@ -91,7 +91,9 @@ def user_dance_songs():
     else:
         # User's dance songs must be gathered and stored as file
         song_df = user_functions.get_user_songs(access_token)
-        song_df.to_csv(file_path, index=False)
+        # TODO use some sort of basic database for storing user's data
+        #  because vercel is serverless, so you can't save anything
+        # song_df.to_csv(file_path, index=False)
 
     dance_df = song_df.sort_values('danceability', ascending=False).iloc[0:30]
     dance_song_dict = dance_df[
