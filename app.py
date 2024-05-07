@@ -179,6 +179,7 @@ def get_token():
 def create_spotify_oath():
     spotify_redirect_uri = app.config['SPOTIFY_REDIRECT_URI']
     print(f"Redirect URI: {spotify_redirect_uri}")
+    print(f"Whatever url_for produces for authorize: {url_for('authorize', _external=True)}")
 
     return SpotifyOAuth(
         client_id=app.config['SPOTIFY_CLIENT_ID'],
