@@ -91,7 +91,8 @@ def get_user_songs(access_token):
 
     start = time.time()
     # loop to populate plist_name, playlist_hrefs, and plist_id
-    for item in user_playlists['items']:
+    items = user_playlists.get("items", [])
+    for item in items:
         plist_names.append(item['name'])
         plist_ids.append(item['id'])
         track_totals.append(item['tracks']['total'])
