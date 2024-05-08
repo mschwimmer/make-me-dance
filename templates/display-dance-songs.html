@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<h1 id="loading-message">Loading your data, please wait...</h1>
+<div class="data-container" style="display: none;">
+    <div class="playlist-form">
+        <p>We scanned all of your playlists and decided these were the top 30 danceable songs</p>
+        <h1>Click 'Create Playlist' with your playlist name to turn this into your own Spotify Playlist!</h1>
+
+        <form action="/create-dance-playlist" method="post">
+            <label for="playlist_name">Playlist Name:</label>
+            <input type="text" id="playlist_name" name="playlist_name" required>
+            <button type="submit">Create Playlist</button>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Song</th>
+                <th scope="col">Album</th>
+                <th scope="col">Artist</th>
+                <th scope="col">Playlist</th>
+                <th scope="col">Dance Score</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Should load table body from javascript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- JavaScript Gather Data Script -->
+<script src="{{ url_for('static', filename='update_dance_songs.js') }}"></script>
+
+{% endblock %}

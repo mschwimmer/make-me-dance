@@ -1,7 +1,7 @@
 import pandas as pd
 from config import get_config
 import user_functions
-from flask import Flask, url_for, session, request, redirect
+from flask import Flask, url_for, session, request, redirect, jsonify
 from flask import render_template
 from spotipy.oauth2 import SpotifyOAuth
 import time
@@ -9,10 +9,6 @@ import os
 
 app = Flask(__name__)
 app.config.from_object(get_config())
-# app.secret_key = Config.FLASK_SECRET_KEY
-# app.config['SESSION_COOKIE_NAME'] = Config.FLASK_SESSION_NAME
-# app.config['DEBUG'] = Config.FLASK_DEBUG
-# # app.config.update(SESSION_COOKIE_SAMESITE="None", SESSION_COOKIE_SECURE=True)
 data_folder = os.path.join(app.root_path, 'data')
 
 
@@ -58,49 +54,24 @@ def welcome():
     return render_template("welcome.html", user_data=session['user_data'])
 
 
-@app.route('/artist-game')
-def enter_game():
+@app.route('/get-user-song-data')
+def get_user_song_data():
+    print("Gathering user's song data!")
     access_token = session['token_info']['access_token']
-    session['user_data'] = user_functions.get_user_data(access_token)
-    session['playlist_data'] = user_functions.get_user_playlists(access_token)
-    session['game_data'] = user_functions.guess_song_game(access_token)
-    # TODO get user input from three buttons
-    return render_template("artist-game.html", user_data=session['user_data'], game_data=session['game_data'])
-
-
-@app.route('/user-guess', methods=['POST'])
-def handle_guess():
-    user_guess = request.form['guess']
-    if user_guess == session['game_data']['correct_album']:
-        return f"{user_guess} IS CORRECT!"
-    else:
-        return f"{user_guess} IS INCORRECT, IT WAS ACTUALLY {session['game_data']['correct_album']}"
-
-
-@app.route('/user-dance-songs')
-def user_dance_songs():
-    access_token = session['token_info']['access_token']
-    if 'user_data' not in session:
-        session['user_data'] = user_functions.get_user_data(access_token)
-    user_name = session['user_data']['display_name'].lower().replace(' ', '_')
-    file_path = os.path.join(data_folder, f"{user_name}_song_data.csv")
-    # Check if user's dance song file already exists
-    if os.path.exists(file_path):
-        # User's dance song data file already exists, load from file and send to page
-        song_df = pd.read_csv(file_path)
-    else:
-        # User's dance songs must be gathered and stored as file
-        song_df = user_functions.get_user_songs(access_token)
-        # TODO use some sort of basic database for storing user's data
-        #  because vercel is serverless, so you can't save anything
-        # song_df.to_csv(file_path, index=False)
-
+    song_df = user_functions.get_user_songs(access_token)
     dance_df = song_df.sort_values('danceability', ascending=False).iloc[0:30]
     dance_song_dict = dance_df[
         ['track_name', 'album', 'artist', 'plist_name', 'danceability', 'uri']].to_dict(
         orient='records')
 
-    return render_template("dance-songs.html", dance_song_data=dance_song_dict)
+    # TODO figure out how to parse in js
+    return jsonify(dance_song_dict)
+
+
+@app.route('/display-dance-songs')
+def display_dance_songs():
+
+    return render_template("display-dance-songs.html")
 
 
 @app.route('/create-dance-playlist', methods=['POST'])
