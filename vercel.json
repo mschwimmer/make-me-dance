@@ -11,4 +11,10 @@
         "src": "(.*)",
         "dest": "app.py"
     }
-]}
+],
+"functions":  {
+    "*": {
+        "maxDuration": 25
+    }
+}
+}
