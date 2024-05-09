@@ -48,10 +48,6 @@ a {
     padding: 10px 0;   /* Add some padding */
 }
 
-#game-section {
-    margin: 50px;
-}
-
 .container {
     width: 75%;
 }
@@ -59,8 +55,14 @@ a {
 .playlist-form {
     margin: 5%;
     padding: 5%;
+    text-align: center;
+}
+
+.playlist-form form {
+    margin-top: 5%;
 }
 
 .table-container {
     width: 75%;
+    margin: auto;
 }
