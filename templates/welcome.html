@@ -1,6 +1,16 @@
 {% extends "layout.html" %}
 
 {% block body %}
+
+<div id="welcome-message">
+    {% if session.get('user_data') %}
+    <h1>Hello {{ session['user_data']['display_name'] }}!</h1>
+    {% else %}
+    <h1>Hello, guest!</h1>
+    <p>Looks like you didn't log in through Spotify.</p>
+    {% endif %}
+</div>
+
 <div class="container">
     <h1><a href="{{url_for('display_dance_songs')}}">Click here to see your most danceable songs (and make a playlist if u want)</a></h1>
 </div>

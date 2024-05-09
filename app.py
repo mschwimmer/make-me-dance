@@ -13,6 +13,13 @@ data_folder = os.path.join(app.root_path, 'data')
 
 
 @app.route('/')
+def index():
+    session.clear()
+    print("Displaying index page")
+    return render_template("index.html")
+
+
+@app.route('/login')
 def login():
     session.clear()
     print("Logging in")
