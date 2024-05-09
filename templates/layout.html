@@ -14,10 +14,29 @@
 
 </head>
 <body>
-<div class="top-left">
-    <a href="{{ url_for('index') }}" class="home-button">Home</a>
+<div class="top-menu">
+    <h1><a href="{{ url_for('index') }}" class="home-button">Home</a></h1>
 </div>
 {% block body %}
 {% endblock %}
+
+<footer>
+    <div id="footer-content">
+        <ul class="social-links">
+            <li>
+                <a href="https://www.linkedin.com/in/mattschwimmer/" target="_blank" rel="noopener noreferrer">
+                    <img src="{{ url_for('static', filename='linkedin.png') }}" alt="LinkedIn">
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/mschwimmer" target="_blank" rel="noopener noreferrer">
+                    <img src="{{ url_for('static', filename='GitHub_Logo.png') }}" alt="GitHub">
+                </a>
+            </li>
+        </ul>
+        <p>&copy; 2024 Matt Schwimmer. All Rights Reserved.</p>
+    </div>
+</footer>
+
 </body>
 </html>

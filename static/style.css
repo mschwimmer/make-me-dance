@@ -1,7 +1,7 @@
 /* MAIN CONTENT STYLES */
 body {
-    background-color: #121212; /* Dark Grey */
-    color: #B3B3B3; /* Light gray for text for contrast */
+    background-color: #57a868; /* Pastel Green for watermelon skin */
+    color: #FFB6C1; /* Light pink for watermelon meat */
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -12,10 +12,11 @@ body {
     min-height: 100vh; /* Full viewport height */
 }
 
-.top-left {
-    position: fixed;
-    top: 10px; /* Space from the top */
-    left: 10px; /* Space from the right */
+.top-menu {
+    top: 0;
+    margin-bottom: 5%;
+    padding: 8px;
+    height: 5%;
 }
 
 .home-button {
@@ -23,12 +24,11 @@ body {
     text-decoration: none; /* Remove underline from link */
     border-radius: 0px; /* Rounded corners */
     border: none; /* No border */
-    font-size: 16px; /* Font size */
 }
 
 .home-button:hover {
-    background-color: #B3B3B3;
-    color: #121212;
+    background-color: #FFB6C1;
+    color: #57a868;;
 }
 
 a {
@@ -50,11 +50,12 @@ a {
 
 .container {
     width: 75%;
+    text-align: center;
 }
 
 .playlist-form {
     margin: 5%;
-    padding: 5%;
+    padding-bottom: 5%;
     text-align: center;
 }
 
@@ -65,4 +66,28 @@ a {
 .table-container {
     width: 75%;
     margin: auto;
+}
+
+footer {
+    padding: 20px 0;
+    margin-top: 20px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+ul {
+    list-style: none;
+    display: flex;
+    justify-content: space-evenly;
+    padding: 0;
+}
+
+ul.social-links li a img{
+    width: 64px;
+    height: auto;
 }

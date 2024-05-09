@@ -4,7 +4,9 @@
 
 <div id="welcome-message">
     {% if session.get('user_data') %}
-    <h1>Hello {{ session['user_data']['display_name'] }}!</h1>
+    <h1>Hello {{ session['user_data']['display_name'] }}</h1>
+    <p>You've logged in!<br>
+        Look at you, having a Spotify account. That's super neat.</p>
     {% else %}
     <h1>Hello, guest!</h1>
     <p>Looks like you didn't log in through Spotify.</p>
@@ -12,6 +14,24 @@
 </div>
 
 <div class="container">
-    <h1><a href="{{url_for('display_dance_songs')}}">Click here to see your most danceable songs (and make a playlist if u want)</a></h1>
+    <h2>How do you choose which songs to use?</h2>
+    <p>Spotify has their own secret formula, much like the Krabby Patty from Spongebob.<br>
+        However, this secret formula doesn't create the best sandwich in Bikini Bottom.<br>
+        No, this formula creates a "Danceability Score" for each song.<br>
+        1 is the most danceable song in the world (think David Bowie - Best Of).<br>
+        0 is the least danceable song in the world (think David Bowie - Worst Of).</p><br>
+    <p>Let's look at some examples.</p>
+
+    <h2>Al Green - Let's Stay Together</h2>
+    <p>Spotify gives this song a 0.756</p>
+
+    <h2>Claude Debussy - Clair de Lune</h2>
+    <p>Spotify gives this song a 0.320</p>
+
+    <h1>At the end of the day, everyone grooves differently</h1>
+    <p>I've been known to bob my head to Debussy myself.</p>
+    <h2>Got it? Good</h2>
+    <p>Click the link below to make a playlist of your top 30 dance songs on Spotify.</p>
+    <h1><a href="{{url_for('display_dance_songs')}}">Make My Dance Playlist!</a></h1>
 </div>
 {% endblock %}

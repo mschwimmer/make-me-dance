@@ -22,7 +22,17 @@ function updateDanceSongs() {
 
             // Replace the existing table content
             document.querySelector('.table tbody').innerHTML = songTable;
-            document.querySelector('#loading-message').textContent = "Successfully retrieved your dance songs!";
+
+            // Update the h1 tag in the loading message
+            document.getElementById('loading-message').querySelector('h1').textContent = "Successfully retrieved your dance songs!";
+
+            // Delete the snarky p tags
+            const pTags = document.getElementById('loading-message').querySelectorAll('p');
+            pTags.forEach((p) => {
+            p.remove()
+            });
+
+            // Start displaying all the content in our data-container div
             document.querySelector('.data-container').style.removeProperty("display");
 //            document.querySelector('#loading-message').style.display = 'none';
             });
