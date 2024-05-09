@@ -53,11 +53,12 @@ def welcome():
     session['token_info'], authorized = get_token()
     session.modified = True
     if not authorized:
+        print("User not authorized, redirecting to index page")
         return redirect('/')
 
     access_token = session['token_info']['access_token']
     session['user_data'] = user_functions.get_user_data(access_token)
-
+    print("Created access token, sending user to welcome page")
     return render_template("welcome.html", user_data=session['user_data'])
 
 
