@@ -1,3 +1,5 @@
+import json
+
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -13,11 +15,13 @@ def get_several_tracks(access_token, track_ids):
     payload = {'ids': track_ids}
 
     try:
-        r = requests.get(BASE_URL + 'audio-features', headers=headers, params=payload)
-        r = r.json()
-        if r is None:
+        response = requests.get(BASE_URL + 'audio-features', headers=headers, params=payload)
+        response = response.json()
+        if response is None:
             raise ValueError('API returned null object')
-        return r
+        return response
+    except json.JSONDecodeError as decode_err:
+        print(f"JSON decode error: {decode_err}")
     except requests.exceptions.RequestException as e:
         print(e)
 
@@ -51,14 +55,16 @@ def get_playlist_items_from_playlist_id(access_token, playlist_id, offset=0, pli
 
     payload = {'limit': 50, 'offset': offset}
     try:
-        r = requests.get(BASE_URL + 'playlists/{id}/tracks'.format(id=playlist_id), headers=headers, params=payload)
-        r = r.json()
-        if r is None:
+        response = requests.get(BASE_URL + 'playlists/{id}/tracks'.format(id=playlist_id), headers=headers, params=payload)
+        response = response.json()
+        if response is None:
             raise ValueError('API returned null object')
         # adding a plist name field to make our lives easier in future
         if plist_name is not None:
-            r['name'] = plist_name
-        return r
+            response['name'] = plist_name
+        return response
+    except json.JSONDecodeError as decode_err:
+        print(f"JSON decode error: {decode_err}")
     except requests.exceptions.RequestException as e:
         print(e)
 
@@ -77,6 +83,8 @@ def get_user(access_token):
             raise ValueError('API returned null object')
         # top_artist = response["items"][0]["name"]
         return response
+    except json.JSONDecodeError as decode_err:
+        print(f"JSON decode error: {decode_err}")
     except requests.exceptions.RequestException as e:
         print(e)
 
@@ -99,6 +107,8 @@ def get_current_user_playlists(access_token):
         if response is None:
             raise ValueError('API returned null object')
         return response
+    except json.JSONDecodeError as decode_err:
+        print(f"JSON decode error: {decode_err}")
     except requests.exceptions.RequestException as e:
         print(e)
 
@@ -124,6 +134,8 @@ def get_top_artist_json(access_token):
             raise ValueError('API returned null object')
         # top_artist = response["items"][0]["name"]
         return response
+    except json.JSONDecodeError as decode_err:
+        print(f"JSON decode error: {decode_err}")
     except requests.exceptions.RequestException as e:
         print(e)
 
@@ -142,6 +154,8 @@ def get_top_tracks_from_artist_json(access_token, artist_id):
         if response is None:
             raise ValueError('API returned null object')
         return response
+    except json.JSONDecodeError as decode_err:
+        print(f"JSON decode error: {decode_err}")
     except requests.exceptions.RequestException as e:
         print(e)
 
@@ -161,6 +175,8 @@ def get_albums_from_artist_json(access_token, artist_id):
         if response is None:
             raise ValueError('API returned null object')
         return response
+    except json.JSONDecodeError as decode_err:
+        print(f"JSON decode error: {decode_err}")
     except requests.exceptions.RequestException as e:
         print(e)
 
@@ -184,6 +200,8 @@ def create_playlist_for_user(access_token, user_id, playlist_name):
         if response is None:
             raise ValueError('API returned null object')
         return response
+    except json.JSONDecodeError as decode_err:
+        print(f"JSON decode error: {decode_err}")
     except requests.exceptions.RequestException as e:
         print(e)
 
@@ -206,5 +224,7 @@ def add_tracks_to_playlist(access_token, playlist_id, track_uris):
         if response is None:
             raise ValueError('API returned null object')
         return response
+    except json.JSONDecodeError as decode_err:
+        print(f"JSON decode error: {decode_err}")
     except requests.exceptions.RequestException as e:
         print(e)
