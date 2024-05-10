@@ -16,7 +16,7 @@ def get_track(access_token, track_id):
         r = r.json()
         return r
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)
 
 
 # https://developer.spotify.com/documentation/web-api/reference/#/operations/get-several-audio-features
@@ -32,7 +32,7 @@ def get_several_tracks(access_token, track_ids):
         r = r.json()
         return r
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)
 
 
 # Uses get_several_tracks_data & multiprocessing for more than 100 tracks
@@ -67,7 +67,7 @@ def get_data_from_href(access_token, href):
         r = r.json()
         return r
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)
 
 
 # https://developer.spotify.com/documentation/web-api/reference/#/operations/get-playlists-tracks
@@ -85,7 +85,7 @@ def get_playlist_items_from_playlist_id(access_token, playlist_id, offset=0, pli
             r['name'] = plist_name
         return r
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)
 
 
 # returns a dict that maps names of every track from a playlist to their track ID even if total_songs>50
@@ -144,7 +144,7 @@ def get_discography(access_token, artist_id):
         d = r.json()
         return d
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)
 
 
 # returns all tracks from an artist
@@ -192,7 +192,7 @@ def get_all_artist_tracks(access_token):
                 data.append(f)
         return data
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)
 
 
 # returns user profile
@@ -208,7 +208,7 @@ def get_user(access_token):
         # top_artist = response["items"][0]["name"]
         return response
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)
 
 
 # returns max 50 playlists from ANY USER, default is 20
@@ -222,7 +222,7 @@ def get_user_playlists(access_token, user_id):
         r = r.json()
         return r
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)
 
 
 # returns CURRENT USER's playlists
@@ -242,7 +242,7 @@ def get_current_user_playlists(access_token):
         response = response.json()
         return response
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)
 
 
 def get_top_artist_json(access_token):
@@ -265,7 +265,7 @@ def get_top_artist_json(access_token):
         # top_artist = response["items"][0]["name"]
         return response
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)
 
 
 def get_top_tracks_from_artist_json(access_token, artist_id):
@@ -281,7 +281,7 @@ def get_top_tracks_from_artist_json(access_token, artist_id):
         response = response.json()
         return response
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)
 
 
 def get_albums_from_artist_json(access_token, artist_id):
@@ -298,7 +298,7 @@ def get_albums_from_artist_json(access_token, artist_id):
         response = response.json()
         return response
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)
 
 
 # https://developer.spotify.com/documentation/web-api/reference/create-playlist
@@ -319,7 +319,7 @@ def create_playlist_for_user(access_token, user_id, playlist_name):
         response = response.json()
         return response
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)
 
 
 # https://developer.spotify.com/documentation/web-api/reference/add-tracks-to-playlist
@@ -339,4 +339,4 @@ def add_tracks_to_playlist(access_token, playlist_id, track_uris):
         response = response.json()
         return response
     except requests.exceptions.RequestException as e:
-        return e
+        print(e)

@@ -58,7 +58,7 @@ def welcome():
 
     access_token = session['token_info']['access_token']
     session['user_data'] = user_functions.get_user_data(access_token)
-    print("Created access token, sending user to welcome page")
+    print("Created access token, sending user to welcome pages")
     return render_template("welcome.html", user_data=session['user_data'])
 
 
