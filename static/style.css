@@ -1,7 +1,11 @@
 /* MAIN CONTENT STYLES */
+html {
+    font-size: 24px;
+}
+
 body {
-    background-color: #57a868; /* Pastel Green for watermelon skin */
-    color: #FFB6C1; /* Light pink for watermelon meat */
+    background-color: #B8D8D8; /* Pastel Green for watermelon skin */
+    color: #5B7778; /* Light pink for watermelon meat */
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -28,8 +32,8 @@ body {
 }
 
 .home-button:hover {
-    background-color: #FFB6C1;
-    color: #57a868;;
+    background-color: #5B7778;
+    color: #B8D8D8;
 }
 
 a {
