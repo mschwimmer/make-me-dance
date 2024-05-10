@@ -81,7 +81,7 @@ def get_user(access_token):
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
-        # top_artist = response["items"][0]["name"]
+        response.raise_for_status()
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
@@ -106,6 +106,7 @@ def get_current_user_playlists(access_token):
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
+        response.raise_for_status()
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
@@ -132,7 +133,7 @@ def get_top_artist_json(access_token):
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
-        # top_artist = response["items"][0]["name"]
+        response.raise_for_status()
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
@@ -153,6 +154,7 @@ def get_top_tracks_from_artist_json(access_token, artist_id):
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
+        response.raise_for_status()
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
@@ -174,6 +176,7 @@ def get_albums_from_artist_json(access_token, artist_id):
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
+        response.raise_for_status()
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
@@ -199,6 +202,7 @@ def create_playlist_for_user(access_token, user_id, playlist_name):
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
+        response.raise_for_status()
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
@@ -223,6 +227,7 @@ def add_tracks_to_playlist(access_token, playlist_id, track_uris):
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
+        response.raise_for_status()
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
