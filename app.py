@@ -37,7 +37,7 @@ def authorize():
     code = request.args.get('code')
     # Using auth code to get access token
     token_info = sp_oath.get_access_token(code)
-    # Apparently future versions of library will return the straight up string, not a dict
+    # Apparently future versions of library will return the straight-up string, not a dict
     # So, handle either way
     if isinstance(token_info, str):
         session["token_info"]['access_token'] = token_info
