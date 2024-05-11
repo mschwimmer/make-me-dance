@@ -16,6 +16,7 @@ def get_several_tracks(access_token, track_ids):
 
     try:
         response = requests.get(BASE_URL + 'audio-features', headers=headers, params=payload)
+        response.raise_for_status()
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
@@ -56,6 +57,7 @@ def get_playlist_items_from_playlist_id(access_token, playlist_id, offset=0, pli
     payload = {'limit': 50, 'offset': offset}
     try:
         response = requests.get(BASE_URL + 'playlists/{id}/tracks'.format(id=playlist_id), headers=headers, params=payload)
+        response.raise_for_status()
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
@@ -78,10 +80,11 @@ def get_user(access_token):
     try:
         # send request to user endpoint
         response = requests.get("https://api.spotify.com/v1/me", headers=headers)
+        response.raise_for_status()
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
-        response.raise_for_status()
+
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
@@ -103,10 +106,11 @@ def get_current_user_playlists(access_token):
     try:
         # send request to user endpoint
         response = requests.get("https://api.spotify.com/v1/me/playlists", headers=headers, params=params)
+        response.raise_for_status()
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
-        response.raise_for_status()
+
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
@@ -130,10 +134,11 @@ def get_top_artist_json(access_token):
         # send request to top artists endpoint
         # response = requests.get(BASE_URL + 'users/' + user_id + '/top/artists', headers=headers, params=params)
         response = requests.get("https://api.spotify.com/v1/me/top/artists", headers=headers, params=params)
+        response.raise_for_status()
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
-        response.raise_for_status()
+
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
@@ -151,10 +156,11 @@ def get_top_tracks_from_artist_json(access_token, artist_id):
     }
     try:
         response = requests.get(f"{BASE_URL}artists/{artist_id}/top-tracks", headers=headers, params=params)
+        response.raise_for_status()
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
-        response.raise_for_status()
+
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
@@ -173,10 +179,11 @@ def get_albums_from_artist_json(access_token, artist_id):
     }
     try:
         response = requests.get(f"{BASE_URL}artists/{artist_id}/albums", headers=headers, params=params)
+        response.raise_for_status()
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
-        response.raise_for_status()
+
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
@@ -199,10 +206,11 @@ def create_playlist_for_user(access_token, user_id, playlist_name):
     try:
         # send request to user endpoint
         response = requests.post(f"https://api.spotify.com/v1/users/{user_id}/playlists", headers=headers, json=data)
+        response.raise_for_status()
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
-        response.raise_for_status()
+
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
@@ -224,10 +232,11 @@ def add_tracks_to_playlist(access_token, playlist_id, track_uris):
         # send request to user endpoint
         response = requests.post(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers,
                                  json=data)
+        response.raise_for_status()
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
-        response.raise_for_status()
+
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
