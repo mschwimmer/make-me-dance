@@ -27,16 +27,12 @@ def get_user_playlists(access_token):
     return playlist_data
 
 
-def get_user_songs(access_token):
+# TODO we're breaking up the banks
+def get_user_songs(access_token, playlists_data):
+    if playlists_data is None:
+        raise ValueError("Playlists data can't be None")
     print(f"Gathering all songs from user's playlists")
     full_start = time.time()
-
-    # Attempt to get users playlists from spotify API
-    try:
-        user_playlists = sf.get_current_user_playlists(access_token)
-    except (json.JSONDecodeError, TypeError, KeyError) as e:
-        print(f"Error decoding playlist: {e}")
-        return pd.DataFrame()  # Return empty dataframe on error
 
     # Initialize empty lists for playlist details
     playlist_hrefs = []
@@ -45,9 +41,9 @@ def get_user_songs(access_token):
     track_totals = []
 
     # Safeguard against bad data
-    items = user_playlists.get("items", [])
+    items = playlists_data.get("items", [])
     if not items:
-        print("No playlists found or malformed response.")
+        print("Couldn't find items in playlist data :(")
         return pd.DataFrame()
 
     # Extract playlist data

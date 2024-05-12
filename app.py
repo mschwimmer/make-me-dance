@@ -66,6 +66,7 @@ def welcome():
 def get_user_song_data():
     print("Gathering user's song data!")
     access_token = session['token_info']['access_token']
+    # TODO split up this method into smaller methods
     song_df = user_functions.get_user_songs(access_token)
     dance_df = song_df.sort_values('danceability', ascending=False).iloc[0:30]
     dance_song_dict = dance_df[
@@ -168,7 +169,7 @@ def create_spotify_oath():
         client_id=app.config['SPOTIFY_CLIENT_ID'],
         client_secret=app.config['SPOTIFY_CLIENT_SECRET'],
         redirect_uri=url_for('authorize', _external=True),
-        scope="user-top-read playlist-modify-public playlist-modify-private"
+        scope="user-top-read playlist-modify-public playlist-modify-private playlist-read-private"
     )
 
 
