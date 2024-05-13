@@ -115,6 +115,8 @@ def get_user_songs(access_token, playlists_data):
               time_past % 60, "seconds")
 
         flat_track_data = list(chain.from_iterable(unique_track_data))
+        flat_track_data = [track for track in flat_track_data if track is not None]
+        # Remove Nulls from list
         flat_df = pd.DataFrame(flat_track_data)
     except (json.JSONDecodeError, KeyError) as e:
         print(f"Error while collection track data: {e}")

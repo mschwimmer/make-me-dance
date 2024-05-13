@@ -67,7 +67,8 @@ def get_user_song_data():
     print("Gathering user's song data!")
     access_token = session['token_info']['access_token']
     # TODO split up this method into smaller methods
-    song_df = user_functions.get_user_songs(access_token)
+    playlists_data = user_functions.get_user_playlists(access_token)
+    song_df = user_functions.get_user_songs(access_token, playlists_data)
     dance_df = song_df.sort_values('danceability', ascending=False).iloc[0:30]
     dance_song_dict = dance_df[
         ['track_name', 'album', 'artist', 'plist_name', 'danceability', 'uri']].to_dict(
