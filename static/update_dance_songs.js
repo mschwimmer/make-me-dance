@@ -1,5 +1,5 @@
 function updateDanceSongs() {
-    fetch('/get-user-song-data')
+    fetch('/user-song-data')
         .then(response => response.json())
         .then(data => {
             console.log('Data received, parsing data now');
@@ -7,14 +7,14 @@ function updateDanceSongs() {
             console.log('Data type: ',typeof data);
             // Create a table row for each song
             data.forEach((song, index) => {
-//                console.log(song);
+                console.log(song);
                 songTable += `
                 <tr>
                     <th scope="row">${index + 1}</th>
                     <td>${song.track_name}</td>
-                    <td>${song.album}</td>
-                    <td>${song.artist}</td>
-                    <td>${song.plist_name}</td>
+                    <td>${song.track_album}</td>
+                    <td>${song.track_artist}</td>
+                    <td>${song.playlist_name}</td>
                     <td>${song.danceability}</td>
                 </tr>`;
             });
@@ -38,6 +38,19 @@ function updateDanceSongs() {
             });
 }
 
-console.log('Call js function');
+function getUserPlaylists() {
+    fetch('/user-playlists')
+        .then(response => response.json())
+        .then(data => {
+        console.log('Playlist data received')
+        document.getElementById('playlist-data-message').textContent = "We've gathered " + data.total + " playlists";
+        document.getElementById('playlist-data-message').style.removeProperty("display");
+        console.log(data)
+        });
+}
+
+console.log('Call get-user-playlist route');
+getUserPlaylists();
+
 updateDanceSongs();
 console.log('Finished running js function');

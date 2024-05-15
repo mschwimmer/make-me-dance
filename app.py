@@ -1,7 +1,7 @@
 import pandas as pd
 from config import get_config
 import user_functions
-from flask import Flask, url_for, session, request, redirect, jsonify
+from flask import Flask, url_for, session, request, redirect
 from flask import render_template
 from spotipy.oauth2 import SpotifyOAuth
 import time
@@ -58,24 +58,27 @@ def welcome():
 
     access_token = session['token_info']['access_token']
     session['user_data'] = user_functions.get_user_data(access_token)
-    print("Created access token, sending user to welcome pages")
+    print("Created access token, sending user to welcome page")
     return render_template("welcome.html", user_data=session['user_data'])
 
 
-@app.route('/get-user-song-data')
+@app.route('/user-playlists')
+def get_user_playlists():
+    print("Gathering user's playlists")
+    access_token = session['token_info']['access_token']
+    playlists_data = user_functions.get_user_playlists(access_token)
+    return playlists_data
+
+
+@app.route('/user-song-data')
 def get_user_song_data():
     print("Gathering user's song data!")
     access_token = session['token_info']['access_token']
     # TODO split up this method into smaller methods
     playlists_data = user_functions.get_user_playlists(access_token)
-    song_df = user_functions.get_user_songs(access_token, playlists_data)
-    dance_df = song_df.sort_values('danceability', ascending=False).iloc[0:30]
-    dance_song_dict = dance_df[
-        ['track_name', 'album', 'artist', 'plist_name', 'danceability', 'uri']].to_dict(
-        orient='records')
+    dance_df = user_functions.get_user_songs(access_token, playlists_data)
 
-    # TODO figure out how to parse in js
-    return jsonify(dance_song_dict)
+    return dance_df.to_json(orient="records")
 
 
 @app.route('/display-dance-songs')
