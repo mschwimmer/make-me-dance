@@ -121,9 +121,8 @@ def get_song_batch_data():
 @app.route('/dance-songs', methods=["POST"])
 def get_dance_songs():
     print(f"Returning top 30 dance songs")
-    # TODO figure out how to send two things in JSON
-    songs = request.json
-    flat_track_data = request.json
+    songs = request.json['songs']
+    flat_track_data = request.json['song_data']
     for track_data in flat_track_data:
         if track_data['id'] in songs:
             songs[track_data['id']]['danceability'] = track_data['danceability']
@@ -135,21 +134,8 @@ def get_dance_songs():
     return dance_df.to_json(orient="records")
 
 
-
-@app.route('/user-song-data')
-def get_user_song_data():
-    print("Gathering user's song data!")
-    access_token = session['token_info']['access_token']
-    # TODO split up this method into smaller methods
-    playlists_data = user_functions.get_user_playlists(access_token)
-    dance_df = user_functions.get_user_songs(access_token, playlists_data)
-
-    return dance_df.to_json(orient="records")
-
-
 @app.route('/display-dance-songs')
 def display_dance_songs():
-
     return render_template("display-dance-songs.html")
 
 
