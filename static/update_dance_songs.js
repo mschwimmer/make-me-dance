@@ -1,56 +1,54 @@
-function updateDanceSongs() {
-    fetch('/user-song-data')
-        .then(response => response.json())
-        .then(data => {
-            console.log('Data received, parsing data now');
-            var songTable = '';
-            console.log('Data type: ',typeof data);
-            // Create a table row for each song
-            data.forEach((song, index) => {
-                console.log(song);
-                songTable += `
-                <tr>
-                    <th scope="row">${index + 1}</th>
-                    <td>${song.track_name}</td>
-                    <td>${song.track_album}</td>
-                    <td>${song.track_artist}</td>
-                    <td>${song.playlist_name}</td>
-                    <td>${song.danceability}</td>
-                </tr>`;
-            });
-//            data.forEach((song) => {console.log(song)});
-
-            // Replace the existing table content
-            document.querySelector('.table tbody').innerHTML = songTable;
-
-            // Update the h1 tag in the loading message
-            document.getElementById('loading-message').querySelector('h1').textContent = "Successfully retrieved your dance songs!";
-
-            // Delete the snarky p tags
-            const pTags = document.getElementById('loading-message').querySelectorAll('p');
-            pTags.forEach((p) => {
-            p.remove()
-            });
-
-            // Start displaying all the content in our data-container div
-            document.querySelector('.data-container').style.removeProperty("display");
-//            document.querySelector('#loading-message').style.display = 'none';
-            });
+async function fetchPlaylists() {
+    try {
+        const response = await fetch('/user-playlists');
+        const data = await response.json();
+        console.log('Playlists', data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching user playlists', error)
+        throw error;
+    }
 }
 
-function getUserPlaylists() {
-    fetch('/user-playlists')
-        .then(response => response.json())
-        .then(data => {
-        console.log('Playlist data received')
-        document.getElementById('playlist-data-message').textContent = "We've gathered " + data.total + " playlists";
-        document.getElementById('playlist-data-message').style.removeProperty("display");
-        console.log(data)
+async function fetchPlaylistItems(playlists) {
+    try {
+        const response = await fetch('/playlist-items', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(playlists)
         });
+        const data = await response.json();
+        console.log('Playlist items', data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching playlist items', error)
+        throw error;
+    }
 }
 
-console.log('Call get-user-playlist route');
-getUserPlaylists();
+async function getAllSongData() {
+    try {
+        console.log('Call user-playlists route');
+        var playlists = await fetchPlaylists();
+        if (playlists.length > 0) {
+            console.log('Call playlist-items route');
+            playlists = await fetchPlaylistItems(playlists);
+            return playlists
+        } else {
+            console.log('No Playlists available');
+        }
+    } catch (error) {
+        console.error('Error Failed to get playlists or items')
+    }
 
-updateDanceSongs();
+
+}
+
+getAllSongData().then(data => {
+    if (data) {
+        console.log('got data!', data);
+    }
+});
 console.log('Finished running js function');

@@ -1,3 +1,5 @@
+from itertools import chain
+
 import pandas as pd
 from config import get_config
 import user_functions
@@ -67,7 +69,71 @@ def get_user_playlists():
     print("Gathering user's playlists")
     access_token = session['token_info']['access_token']
     playlists_data = user_functions.get_user_playlists(access_token)
-    return playlists_data
+
+    # Safeguard against bad data
+    items = playlists_data.get("items", [])
+    if not items:
+        print("Couldn't find items in playlist data :(")
+        return pd.DataFrame()
+
+    print(f"Parsing user's playlist data")
+    playlists = []
+    for item in items:
+        try:
+            playlist = {'playlist_name': item['name'], 'playlist_id': item['id'],
+                        'track_total': item['tracks']['total'], 'playlist_href': item['href']}
+            playlists.append(playlist)
+        except KeyError as e:
+            print(f"KeyError while extracting playlist data {e}")
+
+    return playlists
+
+
+@app.route('/playlist-items', methods=["POST"])
+def get_playlist_items():
+    print("Gathering playlist items")
+    access_token = session['token_info']['access_token']
+    playlists = request.json
+    playlists = user_functions.get_all_playlist_items(access_token, playlists)
+    return playlists
+
+
+@app.route('/song-list', methods=["POST"])
+def generate_song_list():
+    print("Parsing playlist items to create song list")
+    playlists = request.json
+    songs = user_functions.get_song_list(playlists)
+    return songs
+
+
+@app.route('/song-data', methods=["POST"])
+def get_song_batch_data():
+    print(f"Gathering song batch data")
+    access_token = session['token_info']['access_token']
+    songs = request.json
+
+    unique_track_data = user_functions.get_many_tracks_data(access_token, list(songs.keys()))
+    flat_track_data = list(chain.from_iterable(unique_track_data))
+    flat_track_data = [track for track in flat_track_data if track is not None]
+    return flat_track_data
+
+
+@app.route('/dance-songs', methods=["POST"])
+def get_dance_songs():
+    print(f"Returning top 30 dance songs")
+    # TODO figure out how to send two things in JSON
+    songs = request.json
+    flat_track_data = request.json
+    for track_data in flat_track_data:
+        if track_data['id'] in songs:
+            songs[track_data['id']]['danceability'] = track_data['danceability']
+    song_df = pd.DataFrame.from_dict(songs, orient='index')
+    song_df = song_df[~song_df['track_name'].duplicated()]
+    dance_df = song_df.sort_values('danceability', ascending=False).iloc[0:30]
+    dance_df.reset_index(drop=True, inplace=True)
+
+    return dance_df.to_json(orient="records")
+
 
 
 @app.route('/user-song-data')

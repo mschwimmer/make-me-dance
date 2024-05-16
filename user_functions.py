@@ -73,6 +73,30 @@ def get_many_tracks_data(access_token, song_ids):
 
 
 @timer
+def get_song_list(playlists):
+    # Process each playlists tracks
+    songs = {}
+    for playlist in playlists:
+        if not playlist or 'playlist_items' not in playlist:
+            continue
+        for playlist_item in playlist['playlist_items']:
+            for item in playlist_item['items']:
+                try:
+                    if item['track']['id'] and item['track']['id'] not in songs:
+                        song = {'track_name': item['track']['name'],
+                                'track_id': item['track']['id'],
+                                'track_album': item['track']['album']['name'],
+                                'track_artist': item['track']['artists'][0]['name'],
+                                'playlist_name': playlist['playlist_name']}
+                        songs[item['track']['id']] = song
+
+                except KeyError as e:
+                    print(f"KeyError while parsing through playlist item data: {e}")
+
+    return songs
+
+
+@timer
 def get_user_songs(access_token, playlists_data):
     if playlists_data is None:
         raise ValueError("Playlists data can't be None")
