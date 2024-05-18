@@ -1,3 +1,4 @@
+import collections
 import json
 import time
 import pandas as pd
@@ -6,6 +7,17 @@ from itertools import chain
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
+def timer(func):
+    def wrapper(*args, **kwargs):
+        t = time.time()
+        res = func(*args, **kwargs)
+        time_past = time.time() - t
+        print(f"{func.__name__} took {int(time_past / 60)} minutes, {time_past % 60} seconds")
+        return res
+    return wrapper
+
+
+@timer
 def get_user_data(access_token):
     """
     Get spotify user's data via spotify API
@@ -16,6 +28,7 @@ def get_user_data(access_token):
     return user_data
 
 
+@timer
 def get_user_playlists(access_token):
     """
     Get spotify user's playlist data via spotify API
@@ -27,18 +40,67 @@ def get_user_playlists(access_token):
     return playlist_data
 
 
-# TODO we're breaking up the banks
+@timer
+def get_all_playlist_items(access_token, playlists):
+    for playlist in playlists:
+        playlist['playlist_items'] = []
+
+    # Threadpool to handle concurrent requests
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        task_to_playlist = {}
+        for playlist in playlists:
+            offset = 0
+            while offset < playlist['track_total']:
+                task = executor.submit(sf.get_playlist_items_from_playlist_id, access_token, playlist['playlist_id'], offset)
+                task_to_playlist[task] = playlist
+                offset += 50
+
+        for task in as_completed(task_to_playlist):
+            playlist = task_to_playlist[task]
+            try:
+                result = task.result()
+                playlist['playlist_items'].append(result)
+            except Exception as e:
+                print(f"Error retrieving data for playlist {playlist['playlist_name']}: {e} ")
+
+    return playlists
+
+
+@timer
+def get_many_tracks_data(access_token, song_ids):
+    print(f"Getting {len(song_ids)} songs' data")
+    return sf.get_many_tracks_data(access_token, song_ids)
+
+
+@timer
+def get_song_list(playlists):
+    # Process each playlists tracks
+    songs = {}
+    for playlist in playlists:
+        if not playlist or 'playlist_items' not in playlist:
+            continue
+        for playlist_item in playlist['playlist_items']:
+            for item in playlist_item['items']:
+                try:
+                    if item['track']['id'] and item['track']['id'] not in songs:
+                        song = {'track_name': item['track']['name'],
+                                'track_id': item['track']['id'],
+                                'track_album': item['track']['album']['name'],
+                                'track_artist': item['track']['artists'][0]['name'],
+                                'playlist_name': playlist['playlist_name']}
+                        songs[item['track']['id']] = song
+
+                except KeyError as e:
+                    print(f"KeyError while parsing through playlist item data: {e}")
+
+    return songs
+
+
+@timer
 def get_user_songs(access_token, playlists_data):
     if playlists_data is None:
         raise ValueError("Playlists data can't be None")
     print(f"Gathering all songs from user's playlists")
-    full_start = time.time()
-
-    # Initialize empty lists for playlist details
-    playlist_hrefs = []
-    plist_names = []
-    plist_ids = []
-    track_totals = []
 
     # Safeguard against bad data
     items = playlists_data.get("items", [])
@@ -46,93 +108,50 @@ def get_user_songs(access_token, playlists_data):
         print("Couldn't find items in playlist data :(")
         return pd.DataFrame()
 
-    # Extract playlist data
-    start = time.time()
+    print(f"Parsing user's playlist data")
+    playlists = []
     for item in items:
         try:
-            plist_names.append(item['name'])
-            plist_ids.append(item['id'])
-            track_totals.append(item['tracks']['total'])
-            playlist_hrefs.append(item['href'])
+            playlist = {'playlist_name': item['name'], 'playlist_id': item['id'],
+                        'track_total': item['tracks']['total'], 'playlist_href': item['href']}
+            playlists.append(playlist)
         except KeyError as e:
             print(f"KeyError while extracting playlist data {e}")
-    end = time.time()
-    time_past = end - start
-    print(f"Collecting playlist ID, Name, and Href took: {int(time_past / 60)} minutes, {time_past % 60} seconds")
 
-    # List to hold all song units
-    song_units = []
-    start = time.time()
-    threads = []
-    results = []
+    # Process each playlists tracks
+    songs = {}
+    playlists = get_all_playlist_items(access_token, playlists)
+    for playlist in playlists:
+        if not playlist or 'playlist_items' not in playlist:
+            continue
+        for playlist_item in playlist['playlist_items']:
+            for item in playlist_item['items']:
+                try:
+                    if item['track']['id'] and item['track']['id'] not in songs:
+                        song = {'track_name': item['track']['name'],
+                                'track_id': item['track']['id'],
+                                'track_album': item['track']['album']['name'],
+                                'track_artist': item['track']['artists'][0]['name'],
+                                'playlist_name': playlist['playlist_name']}
+                        songs[item['track']['id']] = song
 
-    # Threadpool to handle concurrent requests
-    with ThreadPoolExecutor(max_workers=20) as executor:
-        for plist_name, plist_id, total in zip(plist_names, plist_ids, track_totals):
-            offset = 0
-            while offset < total:
-                threads.append(
-                    executor.submit(sf.get_playlist_items_from_playlist_id, access_token, plist_id, offset, plist_name))
-                offset += 50
-        for task in as_completed(threads):
-            try:
-                result = task.result()
-                results.append(result)
-            except (json.JSONDecodeError, KeyError) as e:
-                print(f"Error processing playlist items: {e}")
-
-    # Process each playlist's tracks
-    for result in results:
-        if not result or 'items' not in result:
-            continue  # Skip bad results
-        for item in result['items']:
-            try:
-                if item['track']['id'] is not None:
-                    song_units.append([item['track']['name'],
-                                       item['track']['id'],
-                                       item['track']['album']['name'],
-                                       item['track']['artists'][0]['name'],
-                                       result['name']])
-            except KeyError as e:
-                print(f"KeyError while extracting song data: {e}")
-
-    end = time.time()
-    time_past = end - start
-    print(f"Collecting all song units via get_playlist_items_from_playlist_id: {int(time_past / 60)} minutes, {time_past % 60} seconds")
-
-    # Process and merge song data
-    song_df = pd.DataFrame(song_units, columns=['track_name', 'track_id', 'album', 'artist', 'plist_name'])
-    all_track_ids = song_df['track_id'].to_list()
-    unique_ids = list(set(all_track_ids))
+                except KeyError as e:
+                    print(f"KeyError while parsing through playlist item data: {e}")
 
     # Retrieve details track data
-    try:
-        start = time.time()
-        unique_track_data = sf.get_many_tracks_data(access_token, unique_ids)
-        end = time.time()
-        time_past = end - start
-        print("Collecting all unique songs' track data via get_many_tracks_data took:", int(time_past / 60), "minutes",
-              time_past % 60, "seconds")
+    unique_track_data = get_many_tracks_data(access_token, list(songs.keys()))
+    flat_track_data = list(chain.from_iterable(unique_track_data))
+    flat_track_data = [track for track in flat_track_data if track is not None]
+    # Remove Nulls from list
+    for track_data in flat_track_data:
+        if track_data['id'] in songs:
+            songs[track_data['id']]['danceability'] = track_data['danceability']
+    song_df = pd.DataFrame.from_dict(songs, orient='index')
+    song_df = song_df[~song_df['track_name'].duplicated()]
+    dance_df = song_df.sort_values('danceability', ascending=False).iloc[0:30]
 
-        flat_track_data = list(chain.from_iterable(unique_track_data))
-        flat_track_data = [track for track in flat_track_data if track is not None]
-        # Remove Nulls from list
-        flat_df = pd.DataFrame(flat_track_data)
-    except (json.JSONDecodeError, KeyError) as e:
-        print(f"Error while collection track data: {e}")
-        return pd.DataFrame()
-
-    flat_df.rename(columns={'id': 'track_id'}, inplace=True)
-    flat_df.set_index('track_id', drop=True, inplace=True)
-    song_df.set_index('track_id', drop=True, inplace=True)
-    song_df = song_df.join(flat_df)
-    song_df = song_df[~song_df.index.duplicated()]
-    song_df.reset_index(inplace=True)
-
-    full_end = time.time()
-    full_time = full_end - full_start
-    print(f"Gathering user's songs took:  {int(time_past / 60)} minutes, {time_past % 60} second")
-    return song_df
+    dance_df.reset_index(drop=True, inplace=True)
+    return dance_df
 
 
 def create_playlist(access_token, user_id, playlist_name):

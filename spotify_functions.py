@@ -49,7 +49,7 @@ def get_many_tracks_data(access_token, track_ids):
 
 
 # https://developer.spotify.com/documentation/web-api/reference/#/operations/get-playlists-tracks
-def get_playlist_items_from_playlist_id(access_token, playlist_id, offset=0, plist_name=None):
+def get_playlist_items_from_playlist_id(access_token, playlist_id, offset=0):
     headers = {
         'Authorization': 'Bearer {token}'.format(token=access_token)
     }
@@ -61,9 +61,6 @@ def get_playlist_items_from_playlist_id(access_token, playlist_id, offset=0, pli
         response = response.json()
         if response is None:
             raise ValueError('API returned null object')
-        # adding a plist name field to make our lives easier in future
-        if plist_name is not None:
-            response['name'] = plist_name
         return response
     except json.JSONDecodeError as decode_err:
         print(f"JSON decode error: {decode_err}")
@@ -100,7 +97,7 @@ def get_current_user_playlists(access_token):
 
     # set up parameters for top artists endpoint
     params = {
-        "limit": 50,
+        "limit": 25,
     }
 
     try:
