@@ -3,12 +3,22 @@
 {% block body %}
 <div class="container">
     <h1>Welcome to Make Me Dance</h1>
-    <h2>You must be a music lover</h2>
-    <p>That's cool. Good for you.</p><br>
-    <h1>What does this website do?</h1>
+    <br>
+    <h2>What does this website do?</h2>
     <p>It scans every Spotify playlist you have and makes the ultimate dance playlist for you.</p>
-    <h1>Sounds cool?</h1>
+    <h2>Sounds cool?</h2>
     <p>We agree.</p>
+
+    <br>
+    <h2>Want to try? Join our Beta!</h2>
+    <p>You can still log in with Spotify below, it just won't work unless you're a beta tester.</p>
+    <form action="/request-beta" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+        <input type="submit" value="Request Beta Access">
+    </form>
 
     <div class="container">
         <h1><a href="{{url_for('login')}}">Click Here to login through Spotify</a></h1>

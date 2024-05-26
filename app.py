@@ -3,8 +3,9 @@ from itertools import chain
 import pandas as pd
 from config import get_config
 import user_functions
-from flask import Flask, url_for, session, request, redirect
+from flask import Flask, url_for, session, request, redirect, flash
 from flask import render_template
+from flask_mail import Mail, Message
 from spotipy.oauth2 import SpotifyOAuth
 import time
 import os
@@ -27,6 +28,7 @@ def login():
     print("Logging in")
     sp_oath = create_spotify_oath()
     auth_url = sp_oath.get_authorize_url()
+    session['token_info'] = sp_oath.get_cached_token()
     print(f"auth_url: {auth_url}")
     return redirect(auth_url)
 
@@ -63,6 +65,11 @@ def welcome():
     print("Created access token, sending user to welcome page")
     return render_template("welcome.html", user_data=session['user_data'])
 
+
+@app.route('/request-beta', methods=["GET", "POST"])
+def request_beta():
+    if request.method == 'POST':
+        name = request.form.name
 
 @app.route('/user-playlists')
 def get_user_playlists():

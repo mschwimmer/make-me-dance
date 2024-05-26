@@ -11,6 +11,11 @@ class Config:
     SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID", None)
     SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET_KEY", None)
     SPOTIFY_REDIRECT_URI = None
+    MAIL_SERVER = os.getenv("MAIL_SERVER", None)
+    MAIL_PORT = os.getenv("MAIL_PORT", None)
+    MAIL_USE_SSL = os.getenv("MAIL_USE_SSL", None)
+    MAIL_USERNAME = os.getenv("MAIL_USERNAME", None)
+    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", None)
 
 
 class DevelopmentConfig(Config):
@@ -18,7 +23,7 @@ class DevelopmentConfig(Config):
 
 
 class ProductionConfig(Config):
-    SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI_PROD", "https://spotify-dance.vercel.app/authorize")
+    SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI_PROD", "https://make-me-dance.vercel.app/authorize")
 
 
 def get_config():
