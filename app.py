@@ -1,18 +1,25 @@
 from itertools import chain
-
+import logging
 import pandas as pd
 from config import get_config
 import user_functions
 from flask import Flask, url_for, session, request, redirect, flash
 from flask import render_template
 from flask_mail import Mail, Message
+from utils.email_validation import is_valid_email, domain_exists
 from spotipy.oauth2 import SpotifyOAuth
 import time
 import os
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Create and configure Flask App
 app = Flask(__name__)
 app.config.from_object(get_config())
 data_folder = os.path.join(app.root_path, 'data')
+mail = Mail(app)
 
 
 @app.route('/')
@@ -69,7 +76,30 @@ def welcome():
 @app.route('/request-beta', methods=["GET", "POST"])
 def request_beta():
     if request.method == 'POST':
-        name = request.form.name
+        name = request.form["name"]
+        email = request.form["email"]
+
+        # Validate email
+        # TODO handle invalid form input is a good way
+        if not is_valid_email(email):
+            return redirect(url_for('index'))
+        if not domain_exists(email):
+            return redirect(url_for('index'))
+
+        # Send Beta Request Email
+        try:
+            msg = Message('Beta Access Request', recipients=['mschwimmer1234@gmail.com'])
+            msg.body = f"Name: {name}\n Email: {email}\n just sent a beta request from make me dance"
+            mail.send(msg)
+            # TODO handle successful beta request in a good way
+        except Exception as e:
+            logger.error(f"Failed to send email: {e}")
+            flash('Failed to send your beta request, please try again later', 'danger')
+
+        return redirect(url_for('index'))
+
+    return redirect(url_for('index'))
+
 
 @app.route('/user-playlists')
 def get_user_playlists():

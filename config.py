@@ -16,6 +16,7 @@ class Config:
     MAIL_USE_SSL = os.getenv("MAIL_USE_SSL", None)
     MAIL_USERNAME = os.getenv("MAIL_USERNAME", None)
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", None)
+    MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", None)
 
 
 class DevelopmentConfig(Config):

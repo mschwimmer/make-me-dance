@@ -1,5 +1,3 @@
-import collections
-import json
 import time
 import pandas as pd
 import spotify_functions as sf
