@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 from config import get_config
 import user_functions
-from flask import Flask, url_for, session, request, redirect, flash
+from flask import Flask, url_for, session, request, redirect, flash, jsonify
 from flask import render_template
 from flask_mail import Mail, Message
 from utils.email_validation import is_valid_email, domain_exists
@@ -131,7 +131,10 @@ def get_playlist_items():
     print("Gathering playlist items")
     access_token = session['token_info']['access_token']
     playlists = request.json
+    if not playlists or not isinstance(playlists, list):
+        return jsonify({'error': 'Invalid input data'}), 400
     playlists = user_functions.get_all_playlist_items(access_token, playlists)
+
     return playlists
 
 
