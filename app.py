@@ -82,9 +82,9 @@ def request_beta():
         # Validate email
         # TODO handle invalid form input is a good way
         if not is_valid_email(email):
-            return redirect(url_for('index'))
+            return redirect(url_for('request_beta'))
         if not domain_exists(email):
-            return redirect(url_for('index'))
+            return redirect(url_for('request_beta'))
 
         # Send Beta Request Email
         try:
@@ -96,9 +96,9 @@ def request_beta():
             logger.error(f"Failed to send email: {e}")
             flash('Failed to send your beta request, please try again later', 'danger')
 
-        return redirect(url_for('index'))
+        return redirect(url_for('request_beta'))
 
-    return redirect(url_for('index'))
+    return render_template("request-beta.html")
 
 
 @app.route('/user-playlists')
