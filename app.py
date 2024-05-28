@@ -1,9 +1,10 @@
 from itertools import chain
+from functools import wraps
 import logging, sys
 import pandas as pd
 from config import get_config
 import user_functions
-from flask import Flask, url_for, session, request, redirect, flash, jsonify
+from flask import Flask, url_for, session, request, redirect, flash, jsonify, after_this_request
 from flask import render_template
 from flask_mail import Mail, Message
 from utils.email_validation import is_valid_email, domain_exists
@@ -22,7 +23,48 @@ data_folder = os.path.join(app.root_path, 'data')
 mail = Mail(app)
 
 
+def get_headers_size(headers):
+    headers_str = ''.join(f"{key}: {value}\n" for key, value in headers.items())
+    return sys.getsizeof(headers_str.encode('utf-8'))
+
+
+def measure_response_size(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        @after_this_request
+        def measure_response(response):
+            # Measure payload size
+            response_data = response.get_data()
+            payload_size_bytes = sys.getsizeof(response_data)
+            payload_size_megabytes = payload_size_bytes / (1024 * 1024)
+
+            # Measure headers size
+            headers_size_bytes = get_headers_size(response.headers)
+            headers_size_megabytes = headers_size_bytes / (1024 * 1024)
+
+            # Measure cookies size
+            cookies_str = ''.join(f"{key}: {value}\n" for key, value in request.cookies.items())
+            cookies_size_bytes = sys.getsizeof(cookies_str.encode('utf-8'))
+            cookies_size_megabytes = cookies_size_bytes / (1024 * 1024)
+
+            total_size_megabytes = payload_size_megabytes + headers_size_megabytes + cookies_size_megabytes
+
+            # print(f"Payload size: {payload_size_megabytes:.2f} MB")
+            # print(f"Headers size: {headers_size_megabytes:.2f} MB")
+            # print(f"Cookies size: {cookies_size_megabytes:.2f} MB")
+            # print(f"Payload size: {payload_size_bytes} bytes")
+            # print(f"Headers size: {headers_size_bytes} bytes")
+            # print(f"Cookies size: {cookies_size_bytes} bytes")
+            print(f"Total response size for {request.endpoint}: {total_size_megabytes:.2f} MB")
+
+            return response
+
+        return func(*args, **kwargs)
+    return wrapper
+
+
 @app.route('/')
+@measure_response_size
 def index():
     session.clear()
     print("Displaying index page")
@@ -30,6 +72,7 @@ def index():
 
 
 @app.route('/login')
+@measure_response_size
 def login():
     session.clear()
     print("Logging in")
@@ -41,6 +84,7 @@ def login():
 
 
 @app.route('/authorize')
+@measure_response_size
 def authorize():
     sp_oath = create_spotify_oath()
     session.clear()
@@ -60,6 +104,7 @@ def authorize():
 
 
 @app.route('/welcome')
+@measure_response_size
 def welcome():
     session['token_info'], authorized = get_token()
     session.modified = True
@@ -74,6 +119,7 @@ def welcome():
 
 
 @app.route('/request-beta', methods=["GET", "POST"])
+@measure_response_size
 def request_beta():
     if request.method == 'POST':
         name = request.form["name"]
@@ -102,6 +148,7 @@ def request_beta():
 
 
 @app.route('/user-playlists')
+@measure_response_size
 def get_user_playlists():
     print("Gathering user's playlists")
     access_token = session['token_info']['access_token']
@@ -123,12 +170,11 @@ def get_user_playlists():
         except KeyError as e:
             print(f"KeyError while extracting playlist data {e}")
 
-    payload_size = sys.getsizeof(playlists) / (1024 * 1024)
-    print(f"Response Payload size: {payload_size:.2f} MB")
     return playlists
 
 
 @app.route('/playlist-items', methods=["POST"])
+@measure_response_size
 def get_playlist_items():
     print("Gathering playlist items")
     access_token = session['token_info']['access_token']
@@ -136,23 +182,21 @@ def get_playlist_items():
     if not playlists or not isinstance(playlists, list):
         return jsonify({'error': 'Invalid input data'}), 400
     playlists = user_functions.get_all_playlist_items(access_token, playlists)
-    payload_size = sys.getsizeof(playlists) / (1024 * 1024)
-    print(f"Response Payload size: {payload_size:.2f} MB")
-
+    # TODO the total response size was 43 MB, need to make smaller
     return playlists
 
 
 @app.route('/song-list', methods=["POST"])
+@measure_response_size
 def generate_song_list():
     print("Parsing playlist items to create song list")
     playlists = request.json
     songs = user_functions.get_song_list(playlists)
-    payload_size = sys.getsizeof(songs) / (1024 * 1024)
-    print(f"Response Payload size: {payload_size:.2f} MB")
     return songs
 
 
 @app.route('/song-data', methods=["POST"])
+@measure_response_size
 def get_song_batch_data():
     print(f"Gathering song batch data")
     access_token = session['token_info']['access_token']
@@ -161,12 +205,11 @@ def get_song_batch_data():
     unique_track_data = user_functions.get_many_tracks_data(access_token, list(songs.keys()))
     flat_track_data = list(chain.from_iterable(unique_track_data))
     flat_track_data = [track for track in flat_track_data if track is not None]
-    payload_size = sys.getsizeof(flat_track_data) / (1024 * 1024)
-    print(f"Response Payload size: {payload_size:.2f} MB")
     return flat_track_data
 
 
 @app.route('/dance-songs', methods=["POST"])
+@measure_response_size
 def get_dance_songs():
     print(f"Returning top 30 dance songs")
     songs = request.json['songs']
@@ -180,17 +223,17 @@ def get_dance_songs():
     dance_df.reset_index(drop=True, inplace=True)
 
     dance_json = dance_df.to_json(orient="records")
-    payload_size = sys.getsizeof(dance_json) / (1024 * 1024)
-    print(f"Response Payload size: {payload_size:.2f} MB")
     return dance_json
 
 
 @app.route('/display-dance-songs')
+@measure_response_size
 def display_dance_songs():
     return render_template("display-dance-songs.html")
 
 
 @app.route('/create-dance-playlist', methods=['POST'])
+@measure_response_size
 def create_dance_playlist():
     access_token = session['token_info']['access_token']
     if 'user_data' not in session:
@@ -238,6 +281,7 @@ def create_dance_playlist():
 
 
 @app.route('/playlist-result')
+@measure_response_size
 def playlist_result():
     # created_playlist = session.get('created_playlist', False)
     print(f"Session keys AFTER redirect: {session.keys()}")
@@ -278,6 +322,9 @@ def create_spotify_oath():
         redirect_uri=url_for('authorize', _external=True),
         scope="user-top-read playlist-modify-public playlist-modify-private playlist-read-private"
     )
+
+
+
 
 
 if __name__ == '__main__':
