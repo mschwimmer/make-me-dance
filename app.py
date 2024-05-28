@@ -1,5 +1,5 @@
 from itertools import chain
-import logging
+import logging, sys
 import pandas as pd
 from config import get_config
 import user_functions
@@ -123,6 +123,8 @@ def get_user_playlists():
         except KeyError as e:
             print(f"KeyError while extracting playlist data {e}")
 
+    payload_size = sys.getsizeof(playlists)
+    print(f"Response Payload size: {payload_size}")
     return playlists
 
 
@@ -134,6 +136,8 @@ def get_playlist_items():
     if not playlists or not isinstance(playlists, list):
         return jsonify({'error': 'Invalid input data'}), 400
     playlists = user_functions.get_all_playlist_items(access_token, playlists)
+    payload_size = sys.getsizeof(playlists)
+    print(f"Response Payload size: {payload_size}")
 
     return playlists
 
@@ -143,6 +147,8 @@ def generate_song_list():
     print("Parsing playlist items to create song list")
     playlists = request.json
     songs = user_functions.get_song_list(playlists)
+    payload_size = sys.getsizeof(songs)
+    print(f"Response Payload size: {payload_size}")
     return songs
 
 
@@ -155,6 +161,8 @@ def get_song_batch_data():
     unique_track_data = user_functions.get_many_tracks_data(access_token, list(songs.keys()))
     flat_track_data = list(chain.from_iterable(unique_track_data))
     flat_track_data = [track for track in flat_track_data if track is not None]
+    payload_size = sys.getsizeof(flat_track_data)
+    print(f"Response Payload size: {payload_size}")
     return flat_track_data
 
 
@@ -171,7 +179,10 @@ def get_dance_songs():
     dance_df = song_df.sort_values('danceability', ascending=False).iloc[0:30]
     dance_df.reset_index(drop=True, inplace=True)
 
-    return dance_df.to_json(orient="records")
+    dance_json = dance_df.to_json(orient="records")
+    payload_size = sys.getsizeof(dance_json)
+    print(f"Response Payload size: {payload_size}")
+    return dance_json
 
 
 @app.route('/display-dance-songs')
