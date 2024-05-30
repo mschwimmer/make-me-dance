@@ -126,7 +126,7 @@ def request_beta():
         email = request.form["email"]
 
         # Validate email
-        # TODO handle invalid form input is a good way
+        # TODO handle invalid form input in a good way
         if not is_valid_email(email):
             return redirect(url_for('request_beta'))
         if not domain_exists(email):
@@ -182,7 +182,6 @@ def get_playlist_items():
     if not playlists or not isinstance(playlists, list):
         return jsonify({'error': 'Invalid input data'}), 400
     playlists = user_functions.get_all_playlist_items(access_token, playlists)
-    # TODO the total response size was 43 MB, need to make smaller
     return playlists
 
 
@@ -221,8 +220,10 @@ def get_dance_songs():
     song_df = song_df[~song_df['track_name'].duplicated()]
     dance_df = song_df.sort_values('danceability', ascending=False).iloc[0:30]
     dance_df.reset_index(drop=True, inplace=True)
-
     dance_json = dance_df.to_json(orient="records")
+    # Add dance song uris to session object for later
+    session.modified = True
+    session['dance_track_ids'] = dance_df['track_id'].to_list()
     return dance_json
 
 
@@ -238,42 +239,31 @@ def create_dance_playlist():
     access_token = session['token_info']['access_token']
     if 'user_data' not in session:
         session['user_data'] = user_functions.get_user_data(access_token)
-    user_name = session['user_data']['display_name'].lower().replace(' ', '_')
-    file_path = os.path.join(data_folder, f"{user_name}_song_data.csv")
-
-    # Get user's dance songs
-    if os.path.exists(file_path):
-        # User's dance song data file already exists, load from file and send to page
-        song_df = pd.read_csv(file_path)
-    else:
-        # User's dance songs must be gathered and stored as file
-        song_df = user_functions.get_user_songs(access_token)
-        # TODO use some sort of basic database for storing user's data
-        #  because vercel is serverless, so you can't save anything
-        # song_df.to_csv(file_path, index=False)
-
-    dance_df = song_df.sort_values('danceability', ascending=False).iloc[0:30]
-
-    playlist_name = request.form['playlist_name']
     # If you're ever modifying the session, need to set this
     session.modified = True
     session['created_playlist'] = False
 
-    # Check if user already has playlist with same name
-    playlist_data = user_functions.get_user_playlists(access_token)
-
-    if playlist_name not in [item['name'] for item in playlist_data['items']]:
-        # Collect list of top 30 dance track URIs
-        track_uris = dance_df['uri'].to_list()
+    # Step 1, gather dance song URI list
+    # Collect list of top 30 dance track URIs
+    dance_track_ids = session.get("dance_track_ids", None)
+    if dance_track_ids:
+        dance_track_uris = ["spotify:track:" + track_id for track_id in dance_track_ids]
         # Create new playlist for user
-        playlist_response = user_functions.create_playlist(access_token, session['user_data']['id'], playlist_name)
-        # Add 30 dance tracks to new playlist
-        add_tracks_response = user_functions.add_tracks_to_playlist(access_token, playlist_response['id'], track_uris)
-        session['new_playlist_link'] = playlist_response['external_urls']['spotify']
-        session['created_playlist'] = True
-        print(f"Created new playlist {playlist_response['external_urls']['spotify']}")
+        # Step 2, create playlist with the name
+        playlist_name = request.form['playlist_name']
+        # Check if user already has playlist with same name
+        playlist_data = user_functions.get_user_playlists(access_token)
+        if playlist_name not in [item['name'] for item in playlist_data['items']]:
+            playlist_response = user_functions.create_playlist(access_token, session['user_data']['id'], playlist_name)
+            # Add 30 dance tracks to new playlist
+            add_tracks_response = user_functions.add_tracks_to_playlist(access_token, playlist_response['id'], dance_track_uris)
+            session['new_playlist_link'] = playlist_response['external_urls']['spotify']
+            session['created_playlist'] = True
+            print(f"Created new playlist {playlist_response['external_urls']['spotify']}")
+        else:
+            print(f"Found playlist name already for user. Did not create new playlist")
     else:
-        print(f"Did not create new playlist")
+        print(f"No track IDs. Did not create new playlist")
 
     print("Redirecting to result page")
     print(f"Session keys BEFORE redirect: {session.keys()}")

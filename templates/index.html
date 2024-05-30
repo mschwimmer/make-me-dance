@@ -10,6 +10,11 @@
     <p>We agree.</p>
 
     <br>
+    <div class="container">
+        <p>For beta testers only.</p>
+        <h1><a href="{{url_for('login')}}">Click here to login through Spotify</a></h1>
+    </div>
+    <br>
     <h2>Want to try? Join our Beta!</h2>
     <p>You can still log in with Spotify below, it just won't work unless you're a beta tester.</p>
     <form action="/request-beta" method="POST">
@@ -18,10 +23,9 @@
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" placeholder="spotify account email"><br><br>
         <input type="submit" value="Request Beta Access">
-    </form><br>
+    </form>
+    <br>
 
-    <div class="container">
-        <h1><a href="{{url_for('login')}}">Click Here to login through Spotify</a></h1>
-    </div>
+
 </div>
 {% endblock %}
