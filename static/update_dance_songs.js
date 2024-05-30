@@ -67,9 +67,21 @@ async function fetchDanceSongs(songs, song_data) {
     return dance_songs
 }
 
-async function getPlaylistItems() {
+async function getPlaylists() {
     try {
         var playlists = await fetchPlaylists();
+        if (playlists.length > 0) {
+            return playlists
+        } else {
+            console.log('No Playlists available');
+        }
+    } catch (error) {
+        console.error('Failed getPlaylists', error)
+    }
+}
+
+async function getPlaylistItems(playlists) {
+    try {
         if (playlists.length > 0) {
             playlists = await fetchPlaylistItems(playlists);
             return playlists
@@ -108,10 +120,49 @@ async function getDanceSongs(songs, song_data) {
     }
 }
 
+function groupPlaylistsByTrackTotal(playlists, maxTrackTotal) {
+    const groupedPlaylists = [];
+    let currentChunk = [];
+    let currentTrackTotal = 0;
+
+    playlists.forEach(playlist => {
+        if (currentTrackTotal + playlist.track_total > maxTrackTotal && currentChunk.length > 0){
+            // If adding new track exceeds maxtracktotal, create new chunk
+            groupedPlaylists.push(currentChunk);
+            currentChunk = [];
+            currentTrackTotal = 0;
+        }
+
+        // Add current playlist to current chunk
+        currentChunk.push(playlist);
+        currentTrackTotal += playlist.track_total;
+    });
+
+    if (currentChunk.length > 0){
+        groupedPlaylists.push(currentChunk);
+    }
+
+    console.log('Grouped Playlists: ', groupedPlaylists)
+    return groupedPlaylists
+}
+
 async function performSequentialTasks() {
     try {
-        const playlists = await getPlaylistItems();
-        const songs = await getSongs(playlists);
+        var playlists = [];
+
+        playlists = await getPlaylists();
+        // Divide playlists into groups, where track total of each
+        const groupedPlaylists = groupPlaylistsByTrackTotal(playlists, 500);
+        playlistItems = []
+        for (const group of groupedPlaylists) {
+            const groupPlaylistsItems = await getPlaylistItems(group);
+            playlistItems.push(groupPlaylistsItems);
+        }
+        // const playlists = await getPlaylistItems();
+        playlistItems = playlistItems.flat()
+        console.log('Playlist Items: ', playlistItems)
+        // Find a way to create a list of getPlaylistItems
+        const songs = await getSongs(playlistItems);
         const song_data = await getSongData(songs);
         const dance_songs = await getDanceSongs(songs, song_data);
         console.log('Finished performing sequential tasks');

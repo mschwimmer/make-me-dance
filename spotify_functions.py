@@ -54,7 +54,9 @@ def get_playlist_items_from_playlist_id(access_token, playlist_id, offset=0):
         'Authorization': 'Bearer {token}'.format(token=access_token)
     }
 
-    payload = {'limit': 50, 'offset': offset}
+    payload = {'fields': "items(track(id,name,album(name),artists(name)))",
+               'limit': 50,
+               'offset': offset}
     try:
         response = requests.get(BASE_URL + 'playlists/{id}/tracks'.format(id=playlist_id), headers=headers, params=payload)
         response.raise_for_status()
