@@ -4,8 +4,8 @@ html {
 }
 
 body {
-    background-color: #B8D8D8; /* Pastel Green for watermelon skin */
-    color: #5B7778; /* Light pink for watermelon meat */
+    background-color: #B8D8D8; /* Pastel Blue */
+    color: #191414; /* Spotify black */
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -17,11 +17,12 @@ body {
     /* text-shadow: 0px 0px 1px black, 0px 0px 2px black; /* Text shadow to create a black outline */
 }
 
-.top-menu {
-    top: 0;
-    margin-bottom: 5%;
-    padding: 8px;
-    height: 5%;
+header {
+    width: 100%;
+}
+
+header ul {
+    margin: 1%;
 }
 
 .home-button {
@@ -32,7 +33,7 @@ body {
 }
 
 .home-button:hover {
-    background-color: #5B7778;
+    background-color: #191414;
     color: #B8D8D8;
 }
 

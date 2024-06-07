@@ -24,10 +24,18 @@
 </ul>
 {% endif %}
 {% endwith %}
-
-<div class="top-menu">
-    <h1><a href="{{ url_for('index') }}" class="home-button">Home</a></h1>
-</div>
+<header class="header">
+        <nav>
+            <ul class="nav-links social-links">
+                <li><a href="{{ url_for('index') }}" class="home-button">Home</a></li>
+                <li><a href="https://www.linkedin.com/in/your-profile" target="_blank"><img
+                        src="{{ url_for('static', filename='linkedin.png') }}" alt="LinkedIn"></a></li>
+                <li><a href="https://github.com/your-profile" target="_blank"><img
+                        src="{{ url_for('static', filename='GitHub_Logo.png') }}" alt="GitHub"></a></li>
+                <li><a href="https://spotify.com" target="_blank"><img src="{{ url_for('static', filename='Spotify_Logo_RGB_Black.png') }}" alt="Spotify"></a></li>
+            </ul>
+        </nav>
+</header>
 {% block body %}
 {% endblock %}
 
