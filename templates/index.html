@@ -8,13 +8,6 @@
     <p>It scans every Spotify playlist you have and makes the ultimate dance playlist for you.</p>
     <h2>Sounds cool?</h2>
     <p>We agree.</p>
-
-    <br>
-    <div class="container">
-        <p>For beta testers only.</p>
-        <h1><a href="{{url_for('login')}}">Click here to login through Spotify</a></h1>
-    </div>
-    <br>
     <h2>Want to try? Join our Beta!</h2>
     <p>You can still log in with Spotify below, it just won't work unless you're a beta tester.</p>
     <form action="/request-beta" method="POST">
@@ -25,6 +18,8 @@
         <input type="submit" value="Request Beta Access">
     </form>
     <br>
+    <h1>Already part of the beta?   </h1>
+    <a href="{{url_for('login')}}"><button type="button" class="btn btn-success">Log in through Spotify</button></a>
 
 
 </div>
