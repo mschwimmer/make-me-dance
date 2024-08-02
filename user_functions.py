@@ -16,7 +16,7 @@ def timer(func):
 
 
 @timer
-def get_user_data(access_token):
+def get_user_data(access_token: str) -> dict:
     """
     Get spotify user's data via spotify API
     :param access_token:
@@ -27,7 +27,7 @@ def get_user_data(access_token):
 
 
 @timer
-def get_user_playlists(access_token):
+def get_user_playlists(access_token: str) -> dict:
     """
     Get spotify user's playlist data via spotify API
     :param access_token:
@@ -39,7 +39,7 @@ def get_user_playlists(access_token):
 
 
 @timer
-def get_all_playlist_items(access_token, playlists):
+def get_all_playlist_items(access_token: str, playlists: list[dict]) -> list[dict]:
     for playlist in playlists:
         playlist['playlist_items'] = []
 
@@ -65,13 +65,13 @@ def get_all_playlist_items(access_token, playlists):
 
 
 @timer
-def get_many_tracks_data(access_token, song_ids):
+def get_many_tracks_data(access_token: str, song_ids: list) -> list:
     print(f"Getting {len(song_ids)} songs' data")
     return sf.get_many_tracks_data(access_token, song_ids)
 
 
 @timer
-def get_song_list(playlists):
+def get_song_list(playlists: list) -> dict[str, dict]:
     # Process each playlists tracks
     songs = {}
     for playlist in playlists:
@@ -95,7 +95,7 @@ def get_song_list(playlists):
 
 
 @timer
-def get_user_songs(access_token, playlists_data):
+def get_user_songs(access_token: str, playlists_data: dict) -> pd.DataFrame:
     if playlists_data is None:
         raise ValueError("Playlists data can't be None")
     print(f"Gathering all songs from user's playlists")
@@ -152,11 +152,11 @@ def get_user_songs(access_token, playlists_data):
     return dance_df
 
 
-def create_playlist(access_token, user_id, playlist_name):
+def create_playlist(access_token: str, user_id: str, playlist_name: str) -> dict:
     playlist_response = sf.create_playlist_for_user(access_token, user_id, playlist_name)
     return playlist_response
 
 
-def add_tracks_to_playlist(access_token, playlist_id, track_uris):
+def add_tracks_to_playlist(access_token: str, playlist_id: str, track_uris: list) -> dict:
     add_tracks_response = sf.add_tracks_to_playlist(access_token, playlist_id, track_uris)
     return add_tracks_response

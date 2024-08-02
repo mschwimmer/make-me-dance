@@ -92,7 +92,7 @@ def get_user(access_token: str) -> dict:
 
 
 # returns CURRENT USER's playlists
-def get_current_user_playlists(access_token: str) -> dict:
+def get_current_user_playlists(access_token: str) -> dict[str, any]:
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
