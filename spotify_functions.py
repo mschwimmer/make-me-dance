@@ -8,7 +8,7 @@ BASE_URL = 'https://api.spotify.com/v1/'
 
 # https://developer.spotify.com/documentation/web-api/reference/#/operations/get-several-audio-features
 # Returns max 100 tracks' data
-def get_several_tracks(access_token, track_ids):
+def get_several_tracks(access_token: str, track_ids: list[str]) -> dict:
     headers = {
         'Authorization': f'Bearer {access_token}'
     }
@@ -29,7 +29,7 @@ def get_several_tracks(access_token, track_ids):
 
 # Uses get_several_tracks_data & multiprocessing for more than 100 tracks
 # Returns [[{audio_feature dictionary}]]
-def get_many_tracks_data(access_token, track_ids):
+def get_many_tracks_data(access_token: str, track_ids: list[str]) -> list:
     total_tracks = len(track_ids)
     track_id_batches = []
     output_batches = []
@@ -49,7 +49,7 @@ def get_many_tracks_data(access_token, track_ids):
 
 
 # https://developer.spotify.com/documentation/web-api/reference/#/operations/get-playlists-tracks
-def get_playlist_items_from_playlist_id(access_token, playlist_id, offset=0):
+def get_playlist_items_from_playlist_id(access_token: str, playlist_id: str, offset: int = 0) -> dict:
     headers = {
         'Authorization': 'Bearer {token}'.format(token=access_token)
     }
@@ -71,7 +71,7 @@ def get_playlist_items_from_playlist_id(access_token, playlist_id, offset=0):
 
 
 # returns user profile
-def get_user(access_token):
+def get_user(access_token: str) -> dict:
     # set up headers with authorization using access token
     headers = {
         "Authorization": f"Bearer {access_token}"
@@ -92,7 +92,7 @@ def get_user(access_token):
 
 
 # returns CURRENT USER's playlists
-def get_current_user_playlists(access_token):
+def get_current_user_playlists(access_token: str) -> dict:
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
@@ -117,7 +117,7 @@ def get_current_user_playlists(access_token):
         print(e)
 
 
-def get_top_artist_json(access_token):
+def get_top_artist_json(access_token: str) -> dict:
     # set up headers with authorization using access token
     headers = {
         "Authorization": f"Bearer {access_token}"
@@ -145,7 +145,7 @@ def get_top_artist_json(access_token):
         print(e)
 
 
-def get_top_tracks_from_artist_json(access_token, artist_id):
+def get_top_tracks_from_artist_json(access_token: str, artist_id: str) -> dict:
     # set up headers with authorization using access token
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -167,7 +167,7 @@ def get_top_tracks_from_artist_json(access_token, artist_id):
         print(e)
 
 
-def get_albums_from_artist_json(access_token, artist_id):
+def get_albums_from_artist_json(access_token: str, artist_id: str) -> dict:
     # set up headers with authorization using access token
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -191,7 +191,7 @@ def get_albums_from_artist_json(access_token, artist_id):
 
 
 # https://developer.spotify.com/documentation/web-api/reference/create-playlist
-def create_playlist_for_user(access_token, user_id, playlist_name):
+def create_playlist_for_user(access_token: str, user_id: str, playlist_name: str) -> dict:
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
@@ -218,7 +218,7 @@ def create_playlist_for_user(access_token, user_id, playlist_name):
 
 
 # https://developer.spotify.com/documentation/web-api/reference/add-tracks-to-playlist
-def add_tracks_to_playlist(access_token, playlist_id, track_uris):
+def add_tracks_to_playlist(access_token: str, playlist_id: str, track_uris: list) -> dict:
     headers = {
         "Authorization": f"Bearer {access_token}"
     }

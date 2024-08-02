@@ -23,7 +23,7 @@ data_folder = os.path.join(app.root_path, 'data')
 mail = Mail(app)
 
 
-def get_headers_size(headers):
+def get_headers_size(headers: dict):
     headers_str = ''.join(f"{key}: {value}\n" for key, value in headers.items())
     return sys.getsizeof(headers_str.encode('utf-8'))
 
@@ -312,9 +312,6 @@ def create_spotify_oath():
         redirect_uri=url_for('authorize', _external=True),
         scope="user-top-read playlist-modify-public playlist-modify-private playlist-read-private"
     )
-
-
-
 
 
 if __name__ == '__main__':
