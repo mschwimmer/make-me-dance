@@ -54,7 +54,7 @@ def get_playlist_items_from_playlist_id(access_token: str, playlist_id: str, off
         'Authorization': 'Bearer {token}'.format(token=access_token)
     }
 
-    payload = {'fields': "items(track(id,name,album(name),artists(name)))",
+    payload = {'fields': "items(track(id,name,album(id,name),artists(id,name)))",
                'limit': 50,
                'offset': offset}
     try:

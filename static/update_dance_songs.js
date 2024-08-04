@@ -181,10 +181,10 @@ performSequentialTasks()
             songTable += `
             <tr>
                 <th scope="row">${index + 1}</th>
-                <td>${song.track_name}</td>
-                <td>${song.track_album}</td>
-                <td>${song.track_artist}</td>
-                <td>${song.playlist_name}</td>
+                <td><a href="https://open.spotify.com/track/${song.track_id}">${song.track_name}</a></td>
+                <td><a href="https://open.spotify.com/album/${song.album_id}">${song.album_name}</a></td>
+                <td><a href="https://open.spotify.com/artist/${song.artist_id}">${song.artist_name}</a></td>
+                <td><a href="https://open.spotify.com/playlist/${song.playlist_id}">${song.playlist_name}</a></td>
                 <td>${song.danceability}</td>
             </tr>`;
         });

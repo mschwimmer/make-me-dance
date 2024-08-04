@@ -83,9 +83,12 @@ def get_song_list(playlists: list) -> dict[str, dict]:
                     if item['track']['id'] and item['track']['id'] not in songs:
                         song = {'track_name': item['track']['name'],
                                 'track_id': item['track']['id'],
-                                'track_album': item['track']['album']['name'],
-                                'track_artist': item['track']['artists'][0]['name'],
-                                'playlist_name': playlist['playlist_name']}
+                                'album_name': item['track']['album']['name'],
+                                'album_id': item['track']['album']['id'],
+                                'artist_name': item['track']['artists'][0]['name'],
+                                'artist_id': item['track']['artists'][0]['id'],
+                                'playlist_name': playlist['playlist_name'],
+                                'playlist_id': playlist['playlist_id']}
                         songs[item['track']['id']] = song
 
                 except KeyError as e:
@@ -94,6 +97,7 @@ def get_song_list(playlists: list) -> dict[str, dict]:
     return songs
 
 
+# Deprecated?
 @timer
 def get_user_songs(access_token: str, playlists_data: dict) -> pd.DataFrame:
     if playlists_data is None:
