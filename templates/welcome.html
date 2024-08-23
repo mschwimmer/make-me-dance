@@ -14,7 +14,13 @@
 </div>
 
 <div class="container">
+    <p>Click the link below to make a playlist of your top 30 dance songs on Spotify.</p>
+
+    <h1><a href="{{url_for('display_dance_songs')}}" class="button">Make My Dance Playlist!</a></h1>
+
+    <div class="container">
     <h2>How do we choose which songs to use?</h2>
+
     <p>Spotify has their own secret formula, much like the Krabby Patty from Spongebob.<br>
         However, this secret formula doesn't create the best sandwich in Bikini Bottom.<br>
         No, this formula creates a "Danceability Score" for each song.<br>
@@ -31,7 +37,7 @@
     <h1>At the end of the day, everyone grooves differently</h1>
     <p>I've been known to bob my head to Debussy myself.</p>
     <h2>Got it? Good</h2>
-    <p>Click the link below to make a playlist of your top 30 dance songs on Spotify.</p>
-    <h1><a href="{{url_for('display_dance_songs')}}">Make My Dance Playlist!</a></h1>
+    </div>
+
 </div>
 {% endblock %}

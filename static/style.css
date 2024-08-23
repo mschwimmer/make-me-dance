@@ -25,14 +25,14 @@ header ul {
     margin: 1%;
 }
 
-.home-button {
+.button {
     padding: 8px 15px; /* Padding inside the button */
     text-decoration: none; /* Remove underline from link */
     border-radius: 0px; /* Rounded corners */
     border: none; /* No border */
 }
 
-.home-button:hover {
+.button:hover {
     background-color: #191414;
     color: #B8D8D8;
 }

@@ -4,12 +4,11 @@
 <div class="container">
     <h1>Welcome to Make Me Dance</h1>
     <br>
-    <h2>What does this website do?</h2>
-    <p>It scans every Spotify playlist you have and makes the ultimate dance playlist for you.</p>
-    <h2>Sounds cool?</h2>
-    <p>We agree.</p>
-    <h2>Want to try? Join our Beta!</h2>
-    <p>You can still log in with Spotify below, it just won't work unless you're a beta tester.</p>
+    <a href="{{url_for('login')}}"><button type="button" class="btn btn-success">Log in through Spotify</button></a>
+    <br>
+     <p>Note: You must be approved as a beta tester to log in with Spotify</p>
+    <h2>Join our Beta!</h2>
+
     <form action="/request-beta" method="POST">
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" required><br><br>
@@ -18,8 +17,7 @@
         <input type="submit" value="Request Beta Access">
     </form>
     <br>
-    <h1>Already part of the beta?   </h1>
-    <a href="{{url_for('login')}}"><button type="button" class="btn btn-success">Log in through Spotify</button></a>
+
 
 
 </div>
